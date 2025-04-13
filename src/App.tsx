@@ -1,33 +1,55 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState } from 'react';
 import './App.css'
 
+import Gameplay from './components/Gameplay'
+
+function getRandomLetter() {
+  const alphabet = "abcdefghijklmnopqrstuvwxyz";
+  const randomIndex = Math.floor(Math.random() * alphabet.length);
+  return alphabet[randomIndex];
+}
+
+function generateAcro(length = 3):string[] {
+  const ACRO:string[] = [];
+  for (let i = 0; i < length; i++) {
+    ACRO.push(getRandomLetter())
+  }
+  // TODO make sure result isn't some 'bad word';
+  return ACRO
+}
+
 function App() {
-  const [count, setCount] = useState(0)
+
+  const [currentacro, setCurrentacro] = useState([" "]);
+  const [roundNumber, setRoundNumber] = useState(0);
+  function startRound() {
+    
+    
+    const ACROLENGTH = (roundNumber+1 % 5) + 3;
+    
+    setCurrentacro(generateAcro(ACROLENGTH))
+
+    setRoundNumber(roundNumber+1);
+
+    console.log("ROUND", roundNumber);
+    console.log("LENGTH", ACROLENGTH);
+  }
+  
+// round()
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      {roundNumber > 0 &&
+      <>
+        <h1>Round {roundNumber}</h1>
+        <Gameplay
+          onNewRound={startRound}
+          ACRONYM={currentacro}/>
+        </>
+      }
+      { roundNumber === 0 &&
+        <button onClick={() => startRound()}>start</button>
+      }
     </>
   )
 }
