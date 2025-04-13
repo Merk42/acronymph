@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css'
 
 import Gameplay from './components/Gameplay'
@@ -22,17 +22,19 @@ function App() {
 
   const [currentacro, setCurrentacro] = useState([" "]);
   const [roundNumber, setRoundNumber] = useState(0);
-  function startRound() {
-    
-    
-    const ACROLENGTH = (roundNumber+1 % 5) + 3;
-    
+
+  useEffect(() => {
+    const ACROLENGTH = acroLengthFromRound(roundNumber);
     setCurrentacro(generateAcro(ACROLENGTH))
+  }, [roundNumber]);
 
+  function acroLengthFromRound(round:number):number{
+    const NEWLENGTH = ((round-1) % 5) + 3;
+    return NEWLENGTH;
+  } 
+
+  function startRound() {
     setRoundNumber(roundNumber+1);
-
-    console.log("ROUND", roundNumber);
-    console.log("LENGTH", ACROLENGTH);
   }
   
 // round()
