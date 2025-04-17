@@ -1,14 +1,14 @@
 import { useMemo, useRef, useState } from "react";
 
-function Gameplay(props:any) {
+function EnterAcro(props:any) {
     const inputRef = useRef(null);
     const [phrase, setPhrase] = useState('');
 
     const isValid = useMemo<boolean>(() => {
-        if (phrase.split(" ").length !== props.ACRONYM.length) {
+        if (phrase.toLowerCase().split(" ").length !== props.ACRONYM.length) {
             return false;
         }
-        const WORDS = phrase.split(" ");
+        const WORDS = phrase.toLowerCase().split(" ");
         for (let i = 0; i < WORDS.length; i++) {
             if (WORDS[i].slice(0, 1) !== props.ACRONYM[i]) {
                 return false;
@@ -39,4 +39,4 @@ function Gameplay(props:any) {
     )
 }
 
-export default Gameplay
+export default EnterAcro

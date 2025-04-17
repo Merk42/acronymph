@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import './App.css'
 
-import Gameplay from './components/Gameplay'
+import EnterAcro from './components/EnterAcro';
+import VoteAcro from './components/VoteAcro';
 
 function getRandomLetter() {
   const alphabet = "abcdefghijklmnopqrstuvwxyz";
@@ -22,6 +23,7 @@ function App() {
 
   const [currentacro, setCurrentacro] = useState([" "]);
   const [roundNumber, setRoundNumber] = useState(0);
+  const [roundMode, setRoundMode] = useState(''); // or vote, or stuff for lightning round?
 
   useEffect(() => {
     const ACROLENGTH = acroLengthFromRound(roundNumber);
@@ -34,26 +36,28 @@ function App() {
   } 
 
   function startRound() {
+    setRoundMode('enter');
     setRoundNumber(roundNumber+1);
   }
   
 // round()
 
-  return (
-    <>
-      {roundNumber > 0 &&
-      <>
-        <h1>Round {roundNumber}</h1>
-        <Gameplay
+  switch (roundMode) {
+    case "enter":
+      return (
+        <EnterAcro
           onNewRound={startRound}
           ACRONYM={currentacro}/>
-        </>
-      }
-      { roundNumber === 0 &&
+      )
+    case "vote":
+      return (
+        <VoteAcro/>
+      )
+    default:
+      return (
         <button onClick={() => startRound()}>start</button>
-      }
-    </>
-  )
+      )
+    }
 }
 
 export default App
