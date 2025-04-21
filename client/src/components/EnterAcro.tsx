@@ -1,6 +1,8 @@
 import { useMemo, useRef, useState } from "react";
 
 function EnterAcro(props:any) {
+    const [isEntered, setIsEntered] = useState(false);
+
     const inputRef = useRef(null);
     const [phrase, setPhrase] = useState('');
 
@@ -20,12 +22,12 @@ function EnterAcro(props:any) {
     const handleClick = () => {
         console.log('submit click?');
         // TODO put value somewhere!;
-        setPhrase("");
+        // setPhrase("");
         if (inputRef.current) {
             inputRef.current.focus();
         }
-        
-        props.onNewRound();
+        setIsEntered(true);
+        props.onAcroEntered(phrase)
     };
 
     return (
@@ -33,8 +35,12 @@ function EnterAcro(props:any) {
             <p style={{textTransform: 'uppercase', fontSize: '4rem'}}>
             {props.ACRONYM.join("")}
             </p>
-            <input type="text" value={phrase} onChange={e => setPhrase(e.target.value)} ref={inputRef}/>
-            <button disabled={!isValid} onClick={handleClick}>submit</button>
+            { isEntered === false && 
+                <div>
+                    <input type="text" value={phrase} onChange={e => setPhrase(e.target.value)} ref={inputRef}/>
+                    <button disabled={!isValid} onClick={handleClick}>submit</button>
+                </div>
+            }
         </div>
     )
 }
