@@ -19,17 +19,14 @@ function Players(props:any) {
     }, [props.players])
 
     return (
-        <>
-        <pre>id: {props.id}</pre>
         <ol className="players">
             { sortedPlayers.map((player) => 
-            <li key={player.id}>
+            <li key={player.id} style={{ fontWeight: player.id === props.id? 'bold': 'normal'}}>
                 <span>{player.name}</span>
                 <span>{player.score}</span>
             </li>
             )}
         </ol>
-        </>
     )
 }
 

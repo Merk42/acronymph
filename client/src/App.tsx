@@ -25,6 +25,7 @@ function App() {
   const [roundMode, setRoundMode] = useState(''); // or vote, or stuff for lightning round?
   const [enteredAcronyms, setEnteredAcronyms] =  useState([]);
   const [timer, setTimer] = useState(0);
+  const [players, setPlayers] = useState([])
 
   const DEMOPLAYERS:Player[] = [
     {
@@ -65,16 +66,7 @@ function App() {
       setRoundMode('enter')
       setCurrentacro(data.acronym);
       setRoundNumber(data.round);
-      setTimer(data.timer);
-      /*
-      setQuestion(data.question);
-      setOptions(data.answers);
-      setAnswered(false);
-      setSeconds(data.timer)
-      setSelectedAnswerIndex();
-     */
-
-  
+      setTimer(data.timer); 
     });
 
     socket.on('voteOnAcronym', (data) => {
@@ -83,19 +75,12 @@ function App() {
       setEnteredAcronyms(data.acrosToVote);
       setTimer(data.timer);
       setRoundMode('vote')
-
-      // setScores(data.scores);
-
-      // else {
-        // setResult(`Incorrect. The correct answer was: ${data.answers[data.correctAnswer]}`);
-      // }
-
     });
 
     socket.on('resultsOfAcronym', (data)=>{
       console.log('resultsOfAcronym...', data)
+      setPlayers(data.players);
       setTimer(data.timer);
-      // setWinner(data.winner);
       setRoundMode('results')
     })
 
@@ -108,15 +93,17 @@ function App() {
 
   useEffect(() => {
     socket.on("enter_room", (id, name) => {
-      console.log('enter...');
-      console.log('id', id);
-      console.log('name', name);
-      console.log('username', userName);
       if (name === userName) {
         setUserID(id);
       }
     })
   }, [userName])
+
+  useEffect(() => {
+    socket.on("players_updated", (players) => {
+      setPlayers(players)
+    })
+  }, [])
 
   function acroEntered(e:string) {
     console.log('acro entered',e)
@@ -142,9 +129,8 @@ function App() {
   // round()
   return (
       <div className="App">
-        <pre>{userName}</pre>
         { roundMode &&
-        <Players players={DEMOPLAYERS} id={userID} />
+        <Players players={players} id={userID} />
         }
         <main>
           { roundNumber > 0 && 

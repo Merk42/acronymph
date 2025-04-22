@@ -75,8 +75,14 @@ io.on("connection", (socket) => {
       //     player.score = 0;
       //   });
       // }
-      // rooms[room].players.push({ id: socket.id, name,score: 0  });
-        rooms[room].players.push({ id: socket.id, name });
+
+        rooms[room].players.push({ 
+          id: socket.id,
+          name: name,
+          score: 0
+         });
+        // TODO also do on score updates
+        io.to(room).emit("players_updated", rooms[room].players);
     
         if (!rooms[room].currentQuestion) {
           sendNewAcronym(room);
@@ -150,11 +156,13 @@ function voteOnAcroym(room) {
 }
 
 function resultsOfAcronym(room) {
-
-  console.log('find winner of', rooms[room].currentVotes);
-  console.log('points', countValues(rooms[room].currentVotes))
+  const votesPerId = countValues(rooms[room].currentVotes);
+  const updatedPlayersAndScore = updateScore(rooms[room].players, votesPerId);
+  rooms[room].players = updatedPlayersAndScore;
+  // TODO maybe this calculation happens in the next phase instead?
   io.to(room).emit("resultsOfAcronym", {      
-    timer: TIME_TO_VIEW
+    timer: TIME_TO_VIEW,
+    players: rooms[room].players
   });
   clearTimeout(rooms[room].questionTimeout);
   rooms[room].questionTimeout = setTimeout(() => {
@@ -173,6 +181,18 @@ function countValues(obj) {
     }
   }
   return valueCounts;
+}
+
+function updateScore(players, votecount) {
+  let updatedplayers = players;
+  for (const key in votecount) {
+    if (votecount.hasOwnProperty(key)) { // Check if the key is a direct property
+      const value = votecount[key];
+      const idToUpdate = updatedplayers.find(player => player.id === key);
+      idToUpdate.score = idToUpdate.score + value;
+    }
+  }
+  return updatedplayers
 }
 
 server.listen(3001, () => {
