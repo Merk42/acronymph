@@ -15,20 +15,26 @@ import Countdown from './components/Countdown';
 
 const socket = io("http://localhost:3001");
 
+interface EnteredAcro {
+  id: string;
+  acro: string;
+  votes?: number;
+}
+
 function App() {
 
-  const [room, setRoom] = useState("");;
-  const [userID, setUserID] = useState("");
-  const [userName, setUserName] = useState("");
+  const [room, setRoom] = useState<string>("");;
+  const [userID, setUserID] = useState<string>("");
+  const [userName, setUserName] = useState<string>("");
 
-  const [currentacro, setCurrentacro] = useState([" "]);
-  const [roundNumber, setRoundNumber] = useState(0);
+  const [currentacro, setCurrentacro] = useState<string[]>([" "]);
+  const [roundNumber, setRoundNumber] = useState<number>(0);
   const [roundMode, setRoundMode] = useState(''); // or vote, or stuff for lightning round?
-  const [enteredAcronyms, setEnteredAcronyms] =  useState([]);
-  const [timer, setTimer] = useState(0);
-  const [players, setPlayers] = useState([]);
-  const [winner, setWinner] = useState('');
-  const [isTieGame, setIsTieGame] = useState(false);
+  const [enteredAcronyms, setEnteredAcronyms] =  useState<EnteredAcro[]>([]);
+  const [timer, setTimer] = useState<number>(0);
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [winner, setWinner] = useState<string>('');
+  const [isTieGame, setIsTieGame] = useState<boolean>(false);
 
   const DEMOPLAYERS:Player[] = [
     {
@@ -84,6 +90,7 @@ function App() {
       console.log('resultsOfAcronym...', data)
       setPlayers(data.players);
       setTimer(data.timer);
+      setEnteredAcronyms(data.acros);
       setRoundMode('results')
     })
 

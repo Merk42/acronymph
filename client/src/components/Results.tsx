@@ -1,20 +1,25 @@
 import { useMemo } from "react"
 
 function Results(props:any) {
-
-    const shuffled = useMemo(() => {
-        let array = props.acros;
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
+    const sortedAcro = useMemo(() => {
+        if (props.acros) {
+            return props.acros.sort((a, b) => {
+                if (a.votes < b.votes) {
+                    return 1; // a comes before b
+                }
+                if (a.votes > b.votes) {
+                    return -1;  // a comes after b
+                }
+                return 0; // a and b are equal
+            });
         }
-        return array;
-    },[props.acros])
+        return []
+    }, [props.acros])
 
     return(
         <ul>
-            { shuffled.map((entry:any) => 
-            <li key={entry.id}><button>{entry.acro}</button></li>
+            { sortedAcro.map((entry:any) => 
+            <li key={entry.id}>{entry.acro} - {entry.votes}</li>
             )}
         </ul>
     )

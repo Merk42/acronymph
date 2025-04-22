@@ -176,11 +176,12 @@ function voteOnAcroym(room) {
 function resultsOfAcronym(room) {
   const votesPerId = countValues(rooms[room].currentVotes);
   const updatedPlayersAndScore = updateScore(rooms[room].players, votesPerId);
+  // TODO maybe update players on next phase?
   rooms[room].players = updatedPlayersAndScore;
-  // TODO maybe this calculation happens in the next phase instead?
   io.to(room).emit("resultsOfAcronym", {      
     timer: TIME_TO_VIEW,
-    players: rooms[room].players
+    players: rooms[room].players,
+    acros: pointsToAcros(rooms[room].currentAcros, votesPerId)
   });
   clearTimeout(rooms[room].questionTimeout);
   rooms[room].questionTimeout = setTimeout(() => {
@@ -211,6 +212,20 @@ function updateScore(players, votecount) {
     }
   }
   return updatedplayers
+}
+
+function pointsToAcros(acros, votecount) {
+  let updatedacros = acros;
+  for (const key in votecount) {
+    if (votecount.hasOwnProperty(key)) { // Check if the key is a direct property
+      const value = votecount[key];
+      const idToUpdate = updatedacros.find(acro => acro.id === key);
+      console.log('idto upae', idToUpdate)
+
+      idToUpdate.votes = value;
+    }
+  }
+  return updatedacros;
 }
 
 server.listen(3001, () => {
