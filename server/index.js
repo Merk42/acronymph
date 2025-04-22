@@ -18,6 +18,7 @@ const io = new Server(server, {
 const TIME_TO_ENTER = 30000;
 const TIME_TO_VOTE = 20000;
 const TIME_TO_VIEW = 10000;
+const MAX_ROUNDS = 3;
 
 function acroLengthFromRound(round){
   const NEWLENGTH = ((round-1) % 5) + 3;
@@ -43,14 +44,6 @@ const rooms = {};
 
 io.on("connection", (socket) => {
     console.log("User Connected", socket.id);
-/*
-    socket.on("join_room", (data) => {
-        socket.join(data);
-        console.log("User with ID", socket.id, "joined room", data);
-        socket.emit("enter_room", {room:data});
-        GO_TO_NEXT_PHASE(data)
-    })
-*/
     socket.on("joinRoom", (room, name) => {
         console.log(name, 'has joined the game')
         socket.join(room);
@@ -83,10 +76,10 @@ io.on("connection", (socket) => {
          });
         // TODO also do on score updates
         io.to(room).emit("players_updated", rooms[room].players);
-    
-        if (!rooms[room].currentRound === 0) {
+        // TODO fix buggy behavior of always increasing round when player enters
+        // if (rooms[room].currentRound === 0) {
           sendNewAcronym(room);
-        }
+        // }
       });
 
     socket.on("acroEntered", (room, acronym) => {
@@ -115,7 +108,7 @@ function sendNewAcronym(room) {
     }
 
     // game over? lightning?
-    if (rooms[room].currentRound === 10) {
+    if (rooms[room].currentRound === MAX_ROUNDS) {
       console.log("GG!!");
 
       const SORTED = rooms[room].players.sort((a, b) => {
@@ -129,6 +122,19 @@ function sendNewAcronym(room) {
       });
       console.log(`${SORTED[0].name} has won!`)
 
+      if (SORTED[0].score === SORTED[1].score) {
+        io.to(room).emit("gameover", {
+          winner: null,
+          tie: true
+        });
+      } else {
+        io.to(room).emit("gameover", {
+          winner: SORTED[0].name,
+          tie: false
+        });
+      }
+
+      io
       return;
     }
   

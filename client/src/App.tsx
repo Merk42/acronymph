@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import './App.css';
 
+import GameOver from './components/GameOver';
 import Results from './components/Results';
 import EnterAcro from './components/EnterAcro';
 import VoteAcro from './components/VoteAcro';
@@ -25,7 +26,9 @@ function App() {
   const [roundMode, setRoundMode] = useState(''); // or vote, or stuff for lightning round?
   const [enteredAcronyms, setEnteredAcronyms] =  useState([]);
   const [timer, setTimer] = useState(0);
-  const [players, setPlayers] = useState([])
+  const [players, setPlayers] = useState([]);
+  const [winner, setWinner] = useState('');
+  const [isTieGame, setIsTieGame] = useState(false);
 
   const DEMOPLAYERS:Player[] = [
     {
@@ -84,10 +87,18 @@ function App() {
       setRoundMode('results')
     })
 
+    socket.on('gameover', (data) => {
+      console.log('gameover', data)
+      setRoundMode('gameover');
+      setWinner(data.winner)
+      setIsTieGame(data.tie);
+    })
+
     return () => {
       socket.off('newAcronym');
       socket.off('voteOnAcronym');
       socket.off('resultsOfAcronym');
+      socket.off('gameover');
     };
   }, []);
 
@@ -144,6 +155,8 @@ function App() {
               return <VoteAcro acros={enteredAcronyms} onVoted={votedFor} id={userID}/>
             case 'results':
               return <Results acros={enteredAcronyms} id={userID}/>
+            case 'gameover':
+                return <GameOver winner={winner} tie={isTieGame}/>
             default:
               return <Login joinRoom={joinRoom}/>
           }
