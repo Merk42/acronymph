@@ -116,7 +116,19 @@ function sendNewAcronym(room) {
 
     // game over? lightning?
     if (rooms[room].currentRound === 10) {
-      console.log("GG!!")
+      console.log("GG!!");
+
+      const SORTED = rooms[room].players.sort((a, b) => {
+        if (a.score < b.score) {
+          return 1; // a comes before b
+        }
+        if (a.score > b.score) {
+          return -1;  // a comes after b
+        }
+        return 0; // a and b are equal
+      });
+      console.log(`${SORTED[0].name} has won!`)
+
       return;
     }
   
