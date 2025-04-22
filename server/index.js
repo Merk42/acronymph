@@ -15,70 +15,29 @@ const io = new Server(server, {
     }
 });
 
-const PORT = process.env.PORT || 3001;
 const TIME_TO_ENTER = 30000;
-const TIME_TO_VOTE = 10000;
+const TIME_TO_VOTE = 20000;
 const TIME_TO_VIEW = 10000;
 
-let LEVEL = 0;
-let isVote = false;
-let players = [];
-
-function GAME_MODE(isVote) {
-    return !isVote ? 'enter' : 'vote'
-}
-
-function GO_TO_NEXT_PHASE(room) {
-    isVote = !isVote;
-    if (LEVEL > 10) {
-        // game over?
-        // lightning?
-        console.log("GG!")
-        LEVEL = 1;
-        return false;
-    }
-    const MODE = GAME_MODE(isVote);
-    // io.to(room).emit("MODE", {MODE});
-    // console.log("ROUND:", Math.floor(LEVEL / 2), "MODE:", MODE)
-    if (MODE === 'enter') {
-        LEVEL++;
-        const ACROLENGTH = acroLengthFromRound(LEVEL);
-        const ACRO = generateAcro(ACROLENGTH)
-        console.log("ROUND:", LEVEL, "MODE:", MODE, "ACRO:", ACRO)
-        io.to(room).emit("MODE", {level:LEVEL,mode:MODE,acro:ACRO});
-
-        setTimeout(() => {
-            GO_TO_NEXT_PHASE()
-        }, TIME_TO_ENTER);
-    } else {
-        console.log("ROUND:", LEVEL, "MODE:", MODE)
-        io.to(room).emit("MODE", {level:LEVEL, mode:MODE});
-        setTimeout(() => {
-            GO_TO_NEXT_PHASE()
-        }, TIME_TO_VOTE);
-    }
-}
-
 function acroLengthFromRound(round){
-    // const R = Math.floor(LEVEL / 2);
-    const NEWLENGTH = ((round-1) % 5) + 3;
-    return NEWLENGTH;
+  const NEWLENGTH = ((round-1) % 5) + 3;
+  return NEWLENGTH;
 }
 
 function getRandomLetter() {
-    const alphabet = "abcdefghijklmnopqrstuvwxyz";
-    const randomIndex = Math.floor(Math.random() * alphabet.length);
-    return alphabet[randomIndex];
-  }
+  const alphabet = "abcdefghijklmnopqrstuvwxyz";
+  const randomIndex = Math.floor(Math.random() * alphabet.length);
+  return alphabet[randomIndex];
+}
   
-  function generateAcro(length = 3) {
-    const ACRO = [];
-    for (let i = 0; i < length; i++) {
-      ACRO.push(getRandomLetter())
-    }
-    // TODO make sure result isn't some 'bad word';
-    return ACRO
+function generateAcro(length = 3) {
+  const ACRO = [];
+  for (let i = 0; i < length; i++) {
+    ACRO.push(getRandomLetter())
   }
+  // TODO make sure result isn't some 'bad word';
+  return ACRO
+}
 
 const rooms = {};
 
@@ -95,7 +54,8 @@ io.on("connection", (socket) => {
     socket.on("joinRoom", (room, name) => {
         console.log(name, 'has joined the game')
         socket.join(room);
-        io.to(room).emit("message", `${name} has joined the game!`);
+        console.log("User Joined", socket.id);
+        io.to(room).emit("enter_room", socket.id, name);
         if (!rooms[room]) {
           rooms[room] = {
             players: [],
@@ -133,10 +93,10 @@ io.on("connection", (socket) => {
     });
 
     socket.on("voted", (room, id) => {
-      if (rooms[room].currentVotes.id) {
-        rooms[room].currentVotes.id++;
+      if (rooms[room].currentVotes[id]) {
+        rooms[room].currentVotes[id]++;
       } else {
-        rooms[room].currentVotes.id = 1
+        rooms[room].currentVotes[id] = 1
       }
     })
 
@@ -352,7 +312,7 @@ function sendNewAcronym(room) {
       acronym: ACRO,
       round: rooms[room].currentRound
     });
-  
+    clearTimeout(rooms[room].questionTimeout);
     rooms[room].questionTimeout = setTimeout(() => {
       console.log("times up, now vote!")
   
@@ -365,6 +325,7 @@ function voteOnAcroym(room) {
     acrosToVote: rooms[room].currentAcros,
     timer: TIME_TO_VOTE
   });
+  clearTimeout(rooms[room].questionTimeout);
   rooms[room].questionTimeout = setTimeout(() => {
     console.log("times up, lets see who won!");
     resultsOfAcronym(room);
@@ -377,6 +338,7 @@ function resultsOfAcronym(room) {
   io.to(room).emit("resultsOfAcronym", {      
     timer: TIME_TO_VIEW
   });
+  clearTimeout(rooms[room].questionTimeout);
   rooms[room].questionTimeout = setTimeout(() => {
     console.log("times up, next acro coming up!");
     sendNewAcronym(room);

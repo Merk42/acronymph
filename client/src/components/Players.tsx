@@ -19,6 +19,8 @@ function Players(props:any) {
     }, [props.players])
 
     return (
+        <>
+        <pre>id: {props.id}</pre>
         <ol className="players">
             { sortedPlayers.map((player) => 
             <li key={player.id}>
@@ -27,6 +29,7 @@ function Players(props:any) {
             </li>
             )}
         </ol>
+        </>
     )
 }
 

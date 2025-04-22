@@ -5,6 +5,7 @@ function Countdown(props:any) {
 
 
     useEffect(() => {
+      setTimeRemaining(props.timer);
         const timerInterval = setInterval(() => {
           setTimeRemaining((prevTime:number) => {
             if (prevTime === 0) {

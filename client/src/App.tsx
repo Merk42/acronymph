@@ -16,7 +16,9 @@ const socket = io("http://localhost:3001");
 
 function App() {
 
-  const [room, setRoom] = useState("")
+  const [room, setRoom] = useState("");;
+  const [userID, setUserID] = useState("");
+  const [userName, setUserName] = useState("");
 
   const [currentacro, setCurrentacro] = useState([" "]);
   const [roundNumber, setRoundNumber] = useState(0);
@@ -105,10 +107,16 @@ function App() {
   }, []);
 
   useEffect(() => {
-    socket.on("enter_room", (e) => {
-      console.log('enter?', e)
+    socket.on("enter_room", (id, name) => {
+      console.log('enter...');
+      console.log('id', id);
+      console.log('name', name);
+      console.log('username', userName);
+      if (name === userName) {
+        setUserID(id);
+      }
     })
-  }, [])
+  }, [userName])
 
   function acroEntered(e:string) {
     console.log('acro entered',e)
@@ -120,6 +128,9 @@ function App() {
   function joinRoom(room:string, username: string) {
     console.log(username, 'is trying joining room', room, 'from parent...');
     // socket.emit("join_room", room)
+    console.log('set username to', username);
+    setUserName(username);
+    console.log('username??', userName)
     setRoom(room);
     socket.emit('joinRoom', room, username);
   }
@@ -131,8 +142,9 @@ function App() {
   // round()
   return (
       <div className="App">
+        <pre>{userName}</pre>
         { roundMode &&
-        <Players players={DEMOPLAYERS} />
+        <Players players={DEMOPLAYERS} id={userID} />
         }
         <main>
           { roundNumber > 0 && 
@@ -143,9 +155,9 @@ function App() {
             case 'enter':
               return <EnterAcro ACRONYM={currentacro} onAcroEntered={acroEntered}/>
             case 'vote':
-              return <VoteAcro acros={enteredAcronyms} onVoted={votedFor}/>
+              return <VoteAcro acros={enteredAcronyms} onVoted={votedFor} id={userID}/>
             case 'results':
-              return <Results acros={enteredAcronyms}/>
+              return <Results acros={enteredAcronyms} id={userID}/>
             default:
               return <Login joinRoom={joinRoom}/>
           }
