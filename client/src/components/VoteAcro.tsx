@@ -18,7 +18,16 @@ function VoteAcro(props:any) {
     return(
         <ul>
             { shuffled.map((entry:any) => 
-            <li key={entry.id}><button disabled={entry.id === props.id} onClick={() => {voteFor(entry.id)}}>{entry.acro}</button></li>
+            <li key={entry.id}>
+                <input
+                    type="radio"
+                    name="votefor"
+                    id={entry.id}
+                    value={entry.id}
+                    disabled={entry.id === props.id}
+                    onChange={() => {voteFor(entry.id)}}/>
+                <label htmlFor={entry.id}>{entry.acro}</label>
+            </li>
             )}
         </ul>
     )

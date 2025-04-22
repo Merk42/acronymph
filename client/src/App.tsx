@@ -136,7 +136,7 @@ function App() {
   }
 
   function votedFor(id:string) {
-    socket.emit('voted', room, id)
+    socket.emit('voted', room, id, userID)
   }
   
   // round()
