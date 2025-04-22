@@ -84,7 +84,7 @@ io.on("connection", (socket) => {
         // TODO also do on score updates
         io.to(room).emit("players_updated", rooms[room].players);
     
-        if (!rooms[room].currentQuestion) {
+        if (!rooms[room].currentRound === 0) {
           sendNewAcronym(room);
         }
       });
