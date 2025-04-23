@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import './App.css';
 
+import PleaseWait from './components/PleaseWait';
 import GameOver from './components/GameOver';
 import Results from './components/Results';
 import EnterAcro from './components/EnterAcro';
@@ -9,7 +10,6 @@ import VoteAcro from './components/VoteAcro';
 import Login from './components/Login';
 import Players from './components/Players';
 import { Player } from './types/Player';
-import { Round } from './types/Round';
 import RoundDisplay from './components/RoundDisplay';
 import Countdown from './components/Countdown';
 
@@ -35,33 +35,6 @@ function App() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [winner, setWinner] = useState<string>('');
   const [isTieGame, setIsTieGame] = useState<boolean>(false);
-
-  const DEMOPLAYERS:Player[] = [
-    {
-      name: "Bobson Dugnutt",
-      id: "3lkj4lkj3",
-      score: 5
-    },
-    {
-      name:"Sleve McDichael",
-      id: "3e43qtlkj",
-      score: 0
-    },
-    {
-      name: "Todd Bonzalez",
-      id: "jkgj333",
-      score: 1
-    },
-    {
-      name: "Mike Truk",
-      id: "jherkljwwt",
-      score: 2
-    }, {
-      name:"Dwigt Rortugal",
-      id: "e4ktjlkkjt",
-      score: 2
-    }
-  ]
 
 /*
   useEffect(() => {
@@ -111,6 +84,7 @@ function App() {
 
   useEffect(() => {
     socket.on("enter_room", (id, name) => {
+      setRoundMode('wait');
       if (name === userName) {
         setUserID(id);
       }
@@ -163,7 +137,9 @@ function App() {
             case 'results':
               return <Results acros={enteredAcronyms} id={userID}/>
             case 'gameover':
-                return <GameOver winner={winner} tie={isTieGame}/>
+              return <GameOver winner={winner} tie={isTieGame}/>
+            case 'wait':
+              return <PleaseWait/>
             default:
               return <Login joinRoom={joinRoom}/>
           }

@@ -18,6 +18,7 @@ const io = new Server(server, {
 const TIME_TO_ENTER = 30000;
 const TIME_TO_VOTE = 20000;
 const TIME_TO_VIEW = 10000;
+const TIME_TO_CELEBRATE = 15000;
 const MAX_ROUNDS = 3;
 
 function acroLengthFromRound(round){
@@ -77,10 +78,18 @@ io.on("connection", (socket) => {
         // TODO also do on score updates
         io.to(room).emit("players_updated", rooms[room].players);
         // TODO fix buggy behavior of always increasing round when player enters
-        // if (rooms[room].currentRound === 0) {
-          sendNewAcronym(room);
+        if (rooms[room].players.length === 1) {
+          sendNewAcronym(room, false);
+        } else {
+          sendNewAcronym(room, true);
+        }
+        socket.on("disconnect", () => {
+          const PLAYERS_CONNECTED = rooms[room].players.filter(player => player.id !== socket.id);
+          rooms[room].players = PLAYERS_CONNECTED;
+          io.to(room).emit("players_updated", rooms[room].players);
+        })          
         // }
-      });
+    });
 
     socket.on("acroEntered", (room, acronym) => {
       console.log(socket.id, 'entered', acronym)
@@ -95,12 +104,10 @@ io.on("connection", (socket) => {
       rooms[room].currentVotes[userid] = acroid;
     })
 
-    socket.on("disconnect", () => {
-        console.log("User Disconnected", socket.id)
-    })
+
 })
 
-function sendNewAcronym(room) {
+function sendNewAcronym(room, wait) {
     if (rooms[room].players.length === 0) {
       clearTimeout(rooms[room].questionTimeout);
       delete rooms[room];
@@ -110,49 +117,30 @@ function sendNewAcronym(room) {
     // game over? lightning?
     if (rooms[room].currentRound === MAX_ROUNDS) {
       console.log("GG!!");
-
-      const SORTED = rooms[room].players.sort((a, b) => {
-        if (a.score < b.score) {
-          return 1; // a comes before b
-        }
-        if (a.score > b.score) {
-          return -1;  // a comes after b
-        }
-        return 0; // a and b are equal
-      });
-      console.log(`${SORTED[0].name} has won!`)
-
-      if (SORTED[0].score === SORTED[1].score) {
-        io.to(room).emit("gameover", {
-          winner: null,
-          tie: true
-        });
-      } else {
-        io.to(room).emit("gameover", {
-          winner: SORTED[0].name,
-          tie: false
-        });
-      }
-
-      io
+      gameOver(room)
       return;
     }
   
     
-      
-    rooms[room].currentRound++;
-    const ACROLENGTH = acroLengthFromRound(rooms[room].currentRound);
-    const ACRO = generateAcro(ACROLENGTH);
-    rooms[room].currentAcronym = ACRO;
-  
-    rooms[room].currentAcros = [];
-    rooms[room].currentVotes = {};
-    rooms[room].shouldSendNewAcronym = true;
-    io.to(room).emit("newAcronym", {      
-      timer: TIME_TO_ENTER,
-      acronym: ACRO,
-      round: rooms[room].currentRound
-    });
+    if (wait){
+      // io.to(room).emit("pleasewait");
+    } else {
+      rooms[room].currentRound++;
+      const ACROLENGTH = acroLengthFromRound(rooms[room].currentRound);
+      const ACRO = generateAcro(ACROLENGTH);
+      rooms[room].currentAcronym = ACRO;
+    
+      rooms[room].currentAcros = [];
+      rooms[room].currentVotes = {};
+      rooms[room].shouldSendNewAcronym = true;
+      io.to(room).emit("newAcronym", {      
+        timer: TIME_TO_ENTER,
+        acronym: ACRO,
+        round: rooms[room].currentRound
+      });
+    }
+
+
     clearTimeout(rooms[room].questionTimeout);
     rooms[room].questionTimeout = setTimeout(() => {
       console.log("times up, now vote!")
@@ -186,8 +174,53 @@ function resultsOfAcronym(room) {
   clearTimeout(rooms[room].questionTimeout);
   rooms[room].questionTimeout = setTimeout(() => {
     console.log("times up, next acro coming up!");
-    sendNewAcronym(room);
+    sendNewAcronym(room, false);
   }, TIME_TO_VIEW);
+}
+
+function gameOver(room) {
+  const SORTED = rooms[room].players.sort((a, b) => {
+    if (a.score < b.score) {
+      return 1; // a comes before b
+    }
+    if (a.score > b.score) {
+      return -1;  // a comes after b
+    }
+    return 0; // a and b are equal
+  });
+  if (SORTED.length > 1 && SORTED[0].score === SORTED[1].score) {
+    io.to(room).emit("gameover", {
+      winner: null,
+      tie: true
+    });
+  } else {
+    io.to(room).emit("gameover", {
+      winner: SORTED[0].name,
+      tie: false
+    });
+  }
+  rooms[room].questionTimeout = setTimeout(() => {
+    console.log("gg!!")
+    startNewGame(room);
+  }, TIME_TO_CELEBRATE);
+}
+
+function startNewGame(room) {
+  rooms[room] = {
+    ...rooms[room],
+    currentQuestion: null,
+    correctAnswer: null,
+    questionTimeout: null,
+    shouldSendNewAcronym: true,
+    currentAcronym: null,
+    currentRound: 0,
+    currentAcros: [],
+    currentVotes: {}
+  };
+  rooms[room].players.forEach((player) => {
+    player.score = 0;
+  });
+  sendNewAcronym(room, false);
 }
 
 function countValues(obj) {
@@ -227,6 +260,8 @@ function pointsToAcros(acros, votecount) {
   }
   return updatedacros;
 }
+
+
 
 server.listen(3001, () => {
     console.log('server running...')

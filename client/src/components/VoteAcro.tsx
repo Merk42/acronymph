@@ -16,17 +16,20 @@ function VoteAcro(props:any) {
     },[props.acros])
 
     return(
-        <ul>
+        <ul className="list-none">
             { shuffled.map((entry:any) => 
             <li key={entry.id}>
-                <input
-                    type="radio"
-                    name="votefor"
-                    id={entry.id}
-                    value={entry.id}
-                    disabled={entry.id === props.id}
-                    onChange={() => {voteFor(entry.id)}}/>
-                <label htmlFor={entry.id}>{entry.acro}</label>
+                 <label className="ml-3 flex gap-4">
+                    <input
+                        type="radio"
+                        className="checked:bg-emerald-400 checked:hover:bg-emerald-400 checked:active:bg-emerald-400 checked:focus:bg-emerald-400 focus:bg-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                        name="votefor"
+                        id={entry.id}
+                        value={entry.id}
+                        disabled={entry.id === props.id}
+                        onChange={() => {voteFor(entry.id)}}/>
+                    <span className="flex-auto">{entry.acro}</span>
+                </label>
             </li>
             )}
         </ul>

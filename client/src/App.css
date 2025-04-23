@@ -1,3 +1,6 @@
+@import "tailwindcss";
+
+
 .App{
   display: grid;
   grid-template-columns: 25ch 1fr;

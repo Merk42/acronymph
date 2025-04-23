@@ -17,9 +17,12 @@ function Results(props:any) {
     }, [props.acros])
 
     return(
-        <ul>
+        <ul className="list-none">
             { sortedAcro.map((entry:any) => 
-            <li key={entry.id}>{entry.acro} - {entry.votes}</li>
+            <li className="ml-3 mb-1 flex gap-4" key={entry.id}>
+                <span className="w-5 text-right">{entry.votes}</span>
+                <span className="flex-auto">{entry.acro}</span>
+            </li>
             )}
         </ul>
     )
