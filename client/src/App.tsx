@@ -2,16 +2,18 @@ import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import './App.css';
 
-import PleaseWait from './components/PleaseWait';
-import GameOver from './components/GameOver';
-import Results from './components/Results';
-import EnterAcro from './components/EnterAcro';
-import VoteAcro from './components/VoteAcro';
-import Login from './components/Login';
-import Players from './components/Players';
-import { Player } from './types/Player';
-import RoundDisplay from './components/RoundDisplay';
+import EnterAcro from './components/modes/EnterAcro';
+import GameOver from './components/modes/GameOver';
+import Login from './components/modes/Login';
+import PleaseWait from './components/modes/PleaseWait';
+import Results from './components/modes/Results';
+import VoteAcro from './components/modes/VoteAcro';
+
 import Countdown from './components/Countdown';
+import Players from './components/Players';
+import RoundDisplay from './components/RoundDisplay';
+
+import { Player } from './types/Player';
 
 const socket = io("http://localhost:3001");
 
@@ -29,19 +31,13 @@ function App() {
 
   const [currentacro, setCurrentacro] = useState<string[]>([" "]);
   const [roundNumber, setRoundNumber] = useState<number>(0);
-  const [roundMode, setRoundMode] = useState(''); // or vote, or stuff for lightning round?
+  const [roundMode, setRoundMode] = useState<string>(''); // or vote, or stuff for lightning round?
   const [enteredAcronyms, setEnteredAcronyms] =  useState<EnteredAcro[]>([]);
   const [timer, setTimer] = useState<number>(0);
   const [players, setPlayers] = useState<Player[]>([]);
   const [winner, setWinner] = useState<string>('');
   const [isTieGame, setIsTieGame] = useState<boolean>(false);
 
-/*
-  useEffect(() => {
-    const ACROLENGTH = acroLengthFromRound(roundNumber);
-    setCurrentacro(generateAcro(ACROLENGTH))
-  }, [roundNumber]);
-*/
   useEffect(() => {
     socket.on('newAcronym', (data) => {
       console.log('newAcronym...', data)
@@ -98,18 +94,11 @@ function App() {
   }, [])
 
   function acroEntered(e:string) {
-    console.log('acro entered',e)
     socket.emit('acroEntered', room, e)
   }
 
-
-
   function joinRoom(room:string, username: string) {
-    console.log(username, 'is trying joining room', room, 'from parent...');
-    // socket.emit("join_room", room)
-    console.log('set username to', username);
     setUserName(username);
-    console.log('username??', userName)
     setRoom(room);
     socket.emit('joinRoom', room, username);
   }
@@ -120,33 +109,35 @@ function App() {
   
   // round()
   return (
-      <div className="App">
+      <div className={`grid gap-8 ${roundMode ? 'sm:grid-cols-[25ch_1fr]' : ''} `}>
         { roundMode &&
         <Players players={players} id={userID} />
         }
         <main>
-          { roundNumber > 0 && 
-            <RoundDisplay round={roundNumber} mode={roundMode}/>
+          { roundNumber > 0 &&
+            <div className='flex'>
+              <RoundDisplay round={roundNumber} mode={roundMode}/>
+              <Countdown timer={timer}/>
+            </div>
           }
-        {(() => {
-          switch (roundMode) {
-            case 'enter':
-              return <EnterAcro ACRONYM={currentacro} onAcroEntered={acroEntered}/>
-            case 'vote':
-              return <VoteAcro acros={enteredAcronyms} onVoted={votedFor} id={userID}/>
-            case 'results':
-              return <Results acros={enteredAcronyms} id={userID}/>
-            case 'gameover':
-              return <GameOver winner={winner} tie={isTieGame}/>
-            case 'wait':
-              return <PleaseWait/>
-            default:
-              return <Login joinRoom={joinRoom}/>
-          }
-        })()}
-        { roundNumber > 0 &&
-          <Countdown timer={timer}/>
-        }
+          <div className='max-w-xl m-auto'>
+          {(() => {
+            switch (roundMode) {
+              case 'enter':
+                return <EnterAcro ACRONYM={currentacro} onAcroEntered={acroEntered}/>
+              case 'vote':
+                return <VoteAcro acros={enteredAcronyms} onVoted={votedFor} id={userID}/>
+              case 'results':
+                return <Results acros={enteredAcronyms} id={userID}/>
+              case 'gameover':
+                return <GameOver winner={winner} tie={isTieGame}/>
+              case 'wait':
+                return <PleaseWait/>
+              default:
+                return <Login joinRoom={joinRoom}/>
+            }
+          })()}
+           </div>
         </main>
       </div>
   )

@@ -19,7 +19,7 @@ const TIME_TO_ENTER = 30000;
 const TIME_TO_VOTE = 20000;
 const TIME_TO_VIEW = 10000;
 const TIME_TO_CELEBRATE = 15000;
-const MAX_ROUNDS = 3;
+const MAX_ROUNDS = 10;
 
 function acroLengthFromRound(round){
   const NEWLENGTH = ((round-1) % 5) + 3;

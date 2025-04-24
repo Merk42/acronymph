@@ -25,7 +25,7 @@ function Countdown(props:any) {
 
 
     return (
-        <div>{timeRemaining / 1000}s</div>
+        <div className="grow text-right">{timeRemaining / 1000}s</div>
     )
 }
 
