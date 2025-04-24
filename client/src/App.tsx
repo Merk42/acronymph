@@ -14,14 +14,10 @@ import Players from './components/Players';
 import RoundDisplay from './components/RoundDisplay';
 
 import { Player } from './types/Player';
+import { EnteredAcro } from './types/Entry';
 
 const socket = io("http://localhost:3001");
 
-interface EnteredAcro {
-  id: string;
-  acro: string;
-  votes?: number;
-}
 
 function App() {
 
