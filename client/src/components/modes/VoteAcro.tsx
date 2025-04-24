@@ -17,23 +17,26 @@ function VoteAcro(props:any) {
 
     if (shuffled.length) {
         return(
-            <ul className="list-none">
+            <fieldset>
+                <legend className="text-xl">Vote for your favorite</legend>
                 { shuffled.map((entry:any) => 
-                <li key={entry.id}>
-                    <label className="ml-3 flex gap-4">
-                        <input
-                            type="radio"
-                            className="checked:bg-blue-400 checked:hover:bg-blue-400 checked:active:bg-blue-400 checked:focus:bg-blue-400 focus:bg-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
-                            name="votefor"
-                            id={entry.id}
-                            value={entry.id}
-                            disabled={entry.id === props.id}
-                            onChange={() => {voteFor(entry.id)}}/>
-                        <span className="flex-auto">{entry.acro}</span>
+                <div key={entry.id} className="mt-4">
+                    <input
+                        type="radio"
+                        className="hidden peer"
+                        name="votefor"
+                        id={entry.id}
+                        value={entry.id}
+                        disabled={entry.id === props.id}
+                        onChange={() => {voteFor(entry.id)}}/>
+                    <label
+                        htmlFor={entry.id}
+                        className="cursor-pointer border-blue-500 border-2 p-4 block rounded-md peer-checked:bg-blue-500 peer-checked:text-white peer-disabled:bg-gray-300 peer-disabled:border-gray-500">
+                            {entry.acro}
                     </label>
-                </li>
+                </div>
                 )}
-            </ul>
+            </fieldset>
         )
     } else {
         return (
