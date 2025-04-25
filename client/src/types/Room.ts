@@ -4,13 +4,10 @@ export interface Rooms {
 
 export interface Room {
     players: Player[],
-    currentQuestion: any;
-    correctAnswer: any;
-    questionTimeout: number;
-    shouldSendNewAcronym: boolean;
+    modeTimeout: any;
     currentAcronym: string[];
     currentRound: number;
-    currentAcros: string[];
+    currentEntries: string[];
     currentVotes: any;
 }
 

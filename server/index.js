@@ -53,13 +53,10 @@ io.on("connection", (socket) => {
         if (!rooms[room]) {
           rooms[room] = {
             players: [],
-            currentQuestion: null,
-            correctAnswer: null,
-            questionTimeout: null,
-            shouldSendNewAcronym: true,
+            modeTimeout: null,
             currentAcronym: null,
             currentRound: 0,
-            currentAcros: [],
+            currentEntries: [],
             currentVotes: {}
           };
         }
@@ -94,7 +91,7 @@ io.on("connection", (socket) => {
     socket.on("acroEntered", (room, acronym) => {
       console.log(socket.id, 'entered', acronym)
       // maybe should
-      rooms[room].currentAcros.push({
+      rooms[room].currentEntries.push({
         id: socket.id,
         acro: acronym
       });
@@ -108,54 +105,49 @@ io.on("connection", (socket) => {
 })
 
 function sendNewAcronym(room, wait) {
-    if (rooms[room].players.length === 0) {
-      clearTimeout(rooms[room].questionTimeout);
-      delete rooms[room];
-      return;
-    }
+  if (rooms[room].players.length === 0) {
+    clearTimeout(rooms[room].modeTimeout);
+    delete rooms[room];
+    return;
+  }
 
-    // game over? lightning?
-    if (rooms[room].currentRound === MAX_ROUNDS) {
-      console.log("GG!!");
-      gameOver(room)
-      return;
-    }
+  // game over? lightning?
+  if (rooms[room].currentRound === MAX_ROUNDS) {
+    console.log("GG!!");
+    gameOver(room)
+    return;
+  }
   
-    
-    if (wait){
-      // io.to(room).emit("pleasewait");
-    } else {
-      rooms[room].currentRound++;
-      const ACROLENGTH = acroLengthFromRound(rooms[room].currentRound);
-      const ACRO = generateAcro(ACROLENGTH);
-      rooms[room].currentAcronym = ACRO;
-    
-      rooms[room].currentAcros = [];
-      rooms[room].currentVotes = {};
-      rooms[room].shouldSendNewAcronym = true;
-      io.to(room).emit("newAcronym", {      
-        timer: TIME_TO_ENTER,
-        acronym: ACRO,
-        round: rooms[room].currentRound
-      });
-    }
-
-
-    clearTimeout(rooms[room].questionTimeout);
-    rooms[room].questionTimeout = setTimeout(() => {
-      console.log("times up, now vote!")
+  if (!wait){
+    rooms[room].currentRound++;
+    const ACROLENGTH = acroLengthFromRound(rooms[room].currentRound);
+    const ACRO = generateAcro(ACROLENGTH);
+    rooms[room].currentAcronym = ACRO;
   
-      voteOnAcroym(room);
-    }, TIME_TO_ENTER);
+    rooms[room].currentEntries = [];
+    rooms[room].currentVotes = {};
+    io.to(room).emit("newAcronym", {
+      acronym: ACRO,
+      timer: TIME_TO_ENTER,
+      round: rooms[room].currentRound
+    });
+  }
+
+  clearTimeout(rooms[room].modeTimeout);
+  rooms[room].modeTimeout = setTimeout(() => {
+    console.log("times up, now vote!")
+    voteOnAcroym(room);
+  }, TIME_TO_ENTER);
 }
 
 function voteOnAcroym(room) {
   io.to(room).emit("voteOnAcronym", {      
-    acrosToVote: rooms[room].currentAcros,
-    timer: TIME_TO_VOTE
+    entries: rooms[room].currentEntries,
+    timer: TIME_TO_VOTE,
+    round: rooms[room].currentRound
   });
-  clearTimeout(rooms[room].questionTimeout);
-  rooms[room].questionTimeout = setTimeout(() => {
+  clearTimeout(rooms[room].modeTimeout);
+  rooms[room].modeTimeout = setTimeout(() => {
     console.log("times up, lets see who won!");
     resultsOfAcronym(room);
   }, TIME_TO_VOTE);
@@ -166,13 +158,14 @@ function resultsOfAcronym(room) {
   const updatedPlayersAndScore = updateScore(rooms[room].players, votesPerId);
   // TODO maybe update players on next phase?
   rooms[room].players = updatedPlayersAndScore;
-  io.to(room).emit("resultsOfAcronym", {      
-    timer: TIME_TO_VIEW,
+  io.to(room).emit("resultsOfAcronym", {
     players: rooms[room].players,
-    acros: pointsToAcros(rooms[room].currentAcros, votesPerId)
+    entries: pointsToAcros(rooms[room].currentEntries, votesPerId),
+    timer: TIME_TO_VIEW,
+    round: rooms[room].currentRound
   });
-  clearTimeout(rooms[room].questionTimeout);
-  rooms[room].questionTimeout = setTimeout(() => {
+  clearTimeout(rooms[room].modeTimeout);
+  rooms[room].modeTimeout = setTimeout(() => {
     console.log("times up, next acro coming up!");
     sendNewAcronym(room, false);
   }, TIME_TO_VIEW);
@@ -201,30 +194,18 @@ function gameOver(room) {
       timer: TIME_TO_CELEBRATE
     });
   }
-  rooms[room].questionTimeout = setTimeout(() => {
+  rooms[room].modeTimeout = setTimeout(() => {
     console.log("gg!!")
     startNewGame(room);
   }, TIME_TO_CELEBRATE);
 }
 
 function startNewGame(room) {
-  /*
-  rooms[room] = {
-    ...rooms[room],
-    currentQuestion: null,
-    correctAnswer: null,
-    questionTimeout: null,
-    shouldSendNewAcronym: true,
-    currentAcronym: null,
-    currentRound: 0,
-    currentAcros: [],
-    currentVotes: {}
-  };
-  */
-  const RESET_PLAYERS = room.players.map(player => { 
+  const RESET_PLAYERS = rooms[room].players.map(player => { 
     return { ...player, score:0 };
   });
   rooms[room].players = RESET_PLAYERS;
+  io.to(room).emit("players_updated", rooms[room].players);
   rooms[room].currentRound = 0;
   sendNewAcronym(room, false);
 }
@@ -247,7 +228,9 @@ function updateScore(players, votecount) {
     if (votecount.hasOwnProperty(key)) { // Check if the key is a direct property
       const value = votecount[key];
       const idToUpdate = updatedplayers.find(player => player.id === key);
-      idToUpdate.score = idToUpdate.score + value;
+      if (idToUpdate) {
+        idToUpdate.score = idToUpdate.score + value;
+      }
     }
   }
   return updatedplayers
@@ -259,9 +242,9 @@ function pointsToAcros(acros, votecount) {
     if (votecount.hasOwnProperty(key)) { // Check if the key is a direct property
       const value = votecount[key];
       const idToUpdate = updatedacros.find(acro => acro.id === key);
-      console.log('idto upae', idToUpdate)
-
-      idToUpdate.votes = value;
+      if (idToUpdate) {
+        idToUpdate.votes = value;
+      }
     }
   }
   return updatedacros;

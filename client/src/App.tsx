@@ -18,6 +18,7 @@ import { EnteredAcro } from './types/Entry';
 
 const socket = io("http://localhost:3001");
 
+type MODE = '' | 'wait' | 'enter' | 'vote' | 'results' | 'gameover';
 
 function App() {
 
@@ -27,7 +28,7 @@ function App() {
 
   const [currentacro, setCurrentacro] = useState<string[]>([" "]);
   const [roundNumber, setRoundNumber] = useState<number>(0);
-  const [roundMode, setRoundMode] = useState<string>(''); // or vote, or stuff for lightning round?
+  const [roundMode, setRoundMode] = useState<MODE>(''); // or vote, or stuff for lightning round?
   const [enteredAcronyms, setEnteredAcronyms] =  useState<EnteredAcro[]>([]);
   const [timer, setTimer] = useState<number>(0);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -37,16 +38,17 @@ function App() {
   useEffect(() => {
     socket.on('newAcronym', (data) => {
       console.log('newAcronym...', data)
-      setRoundMode('enter')
       setCurrentacro(data.acronym);
       setRoundNumber(data.round);
       setTimer(data.timer); 
+      setRoundMode('enter');
     });
 
     socket.on('voteOnAcronym', (data) => {
       console.log('voteOnAcronym...', data);
       console.log('list', data.acrosToVote);
-      setEnteredAcronyms(data.acrosToVote);
+      setEnteredAcronyms(data.entries);
+      setRoundNumber(data.round);
       setTimer(data.timer);
       setRoundMode('vote')
     });
@@ -54,17 +56,18 @@ function App() {
     socket.on('resultsOfAcronym', (data)=>{
       console.log('resultsOfAcronym...', data)
       setPlayers(data.players);
+      setEnteredAcronyms(data.entries);
+      setRoundNumber(data.round);
       setTimer(data.timer);
-      setEnteredAcronyms(data.acros);
       setRoundMode('results')
     })
 
     socket.on('gameover', (data) => {
       console.log('gameover', data)
-      setRoundMode('gameover');
       setWinner(data.winner)
       setIsTieGame(data.tie);
       setTimer(data.timer);
+      setRoundMode('gameover');
     })
 
     return () => {
@@ -104,7 +107,6 @@ function App() {
     socket.emit('voted', room, id, userID)
   }
   
-  // round()
   return (
       <div className={`grid gap-8 p-8 ${roundMode ? 'sm:grid-cols-[25ch_1fr]' : ''} `}>
         { roundMode &&

@@ -18,7 +18,7 @@ function Login(props:any) {
 
 
     return (
-        <div className="flex flex-col max-w-xs">
+        <div className="flex flex-col max-w-xs m-auto">
             <h1 className="text-center text-5xl font-bold text-blue-500 mt-4">Acronymph</h1>
             <label
                 className="block text-sm/6 font-medium text-gray-900 mt-4"
