@@ -64,6 +64,7 @@ function App() {
       setRoundMode('gameover');
       setWinner(data.winner)
       setIsTieGame(data.tie);
+      setTimer(data.timer);
     })
 
     return () => {

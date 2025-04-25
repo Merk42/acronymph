@@ -191,12 +191,14 @@ function gameOver(room) {
   if (SORTED.length > 1 && SORTED[0].score === SORTED[1].score) {
     io.to(room).emit("gameover", {
       winner: null,
-      tie: true
+      tie: true,
+      timer: TIME_TO_CELEBRATE
     });
   } else {
     io.to(room).emit("gameover", {
       winner: SORTED[0].name,
-      tie: false
+      tie: false,
+      timer: TIME_TO_CELEBRATE
     });
   }
   rooms[room].questionTimeout = setTimeout(() => {
@@ -219,9 +221,10 @@ function startNewGame(room) {
     currentVotes: {}
   };
   */
-  rooms[room].players.forEach((player) => {
-    player.score = 0;
+  const RESET_PLAYERS = room.players.map(player => { 
+    return { ...player, score:0 };
   });
+  rooms[room].players = RESET_PLAYERS;
   rooms[room].currentRound = 0;
   sendNewAcronym(room, false);
 }

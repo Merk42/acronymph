@@ -1,6 +1,6 @@
 function PleaseWait() {
     return (
-        <div>Please wait&hellip;</div>
+        <div className="text-xl">Please wait while the current phase concludes&hellip;</div>
     )
 }
 
