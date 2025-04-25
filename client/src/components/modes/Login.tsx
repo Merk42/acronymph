@@ -19,12 +19,12 @@ function Login(props:any) {
 
     return (
         <div className="flex flex-col max-w-xs m-auto">
-            <h1 className="text-center text-5xl font-bold text-blue-500 mt-4">Acronymph</h1>
+            <h1 className="text-center text-5xl font-bold text-blue-500 dark:text-blue-400 mt-4">Acronymph</h1>
             <label
-                className="block text-sm/6 font-medium text-gray-900 mt-4"
+                className="block text-sm/6 font-medium text-gray-900 dark:text-white mt-4"
                 htmlFor="name">username</label>
             <input
-                className="outline-1 outline-gray-300 block min-w-0 grow py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-blue-500"
+                className="outline-1 outline-gray-300 block min-w-0 grow py-1.5 pr-3 pl-1 text-base text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-blue-500"
                 id="name"
                 type="text"
                 placeholder="cool name"
@@ -34,10 +34,10 @@ function Login(props:any) {
                 }}
             />
             <label
-                className="block text-sm/6 font-medium text-gray-900 mt-4"
+                className="block text-sm/6 font-medium text-gray-900 dark:text-white mt-4"
                 htmlFor="room">room</label>
             <input
-                className="outline-1 outline-gray-300 block min-w-0 grow py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-blue-500"
+                className="outline-1 outline-gray-300 block min-w-0 grow py-1.5 pr-3 pl-1 text-base text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-blue-500"
                 id="room"
                 type="text"
                 placeholder="room"

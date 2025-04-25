@@ -31,7 +31,7 @@ function VoteAcro(props:any) {
                         onChange={() => {voteFor(entry.id)}}/>
                     <label
                         htmlFor={entry.id}
-                        className="cursor-pointer border-blue-500 border-2 p-4 block rounded-md peer-checked:bg-blue-500 peer-checked:text-white peer-disabled:bg-gray-300 peer-disabled:border-gray-500">
+                        className="cursor-pointer border-blue-500 border-2 p-4 block rounded-md peer-checked:bg-blue-500 peer-checked:text-white peer-disabled:bg-gray-300 peer-disabled:border-gray-500 peer-disabled:cursor-not-allowed dark:peer-disabled:bg-gray-600">
                             {entry.acro}
                     </label>
                 </div>

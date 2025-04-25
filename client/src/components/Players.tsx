@@ -22,7 +22,7 @@ function Players(props:any) {
         <div>
             <ol className="flex sm:grid grid-cols-[1fr_3ch] m-0 p-0 gap-2 overflow-auto">
                 { sortedPlayers.map((player) => 
-                <li className={`flex sm:contents gap-4 ${player.id === props.id ? 'font-bold text-blue-500' : ''} `} key={player.id}>
+                <li className={`flex sm:contents gap-4 ${player.id === props.id ? 'font-bold text-blue-500 dark:text-blue-400' : ''} `} key={player.id}>
                     <span>{player.name}</span>
                     <span className="text-right">{player.score}</span>
                 </li>

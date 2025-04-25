@@ -40,7 +40,7 @@ function EnterAcro(props:any) {
             { isEntered === false && 
                 <div className="flex mt-16">
                     <input
-                        className="rounded-tl-lg rounded-bl-lg text-2xl outline-1 -outline-offset-1 outline-gray-300 block min-w-0 grow py-1.5 px-3 text-gray-900 placeholder:text-gray-400"
+                        className="rounded-tl-lg rounded-bl-lg text-2xl outline-1 -outline-offset-1 outline-gray-300 block min-w-0 grow py-1.5 px-3 text-gray-900 dark:text-white placeholder:text-gray-400"
                         type="text"
                         value={phrase}
                         onChange={e => setPhrase(e.target.value)}
