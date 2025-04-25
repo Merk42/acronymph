@@ -40,7 +40,7 @@ function VoteAcro(props:any) {
         )
     } else {
         return (
-            <p className="text-center">No one entered any acronyms!</p>
+            <p className="text-center text-xl">No one entered any acronyms!</p>
         )
     }
 }

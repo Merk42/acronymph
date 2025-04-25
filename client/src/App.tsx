@@ -76,9 +76,9 @@ function App() {
 
   useEffect(() => {
     socket.on("enter_room", (id, name) => {
-      setRoundMode('wait');
       if (name === userName) {
         setUserID(id);
+        setRoundMode('wait');
       }
     })
   }, [userName])
@@ -105,13 +105,13 @@ function App() {
   
   // round()
   return (
-      <div className={`grid gap-8 ${roundMode ? 'sm:grid-cols-[25ch_1fr]' : ''} `}>
+      <div className={`grid gap-8 p-8 ${roundMode ? 'sm:grid-cols-[25ch_1fr]' : ''} `}>
         { roundMode &&
         <Players players={players} id={userID} />
         }
         <main>
           { roundNumber > 0 &&
-            <div className='flex'>
+            <div className='flex mb-8'>
               <RoundDisplay round={roundNumber} mode={roundMode}/>
               <Countdown timer={timer}/>
             </div>

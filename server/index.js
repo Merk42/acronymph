@@ -206,6 +206,7 @@ function gameOver(room) {
 }
 
 function startNewGame(room) {
+  /*
   rooms[room] = {
     ...rooms[room],
     currentQuestion: null,
@@ -217,9 +218,11 @@ function startNewGame(room) {
     currentAcros: [],
     currentVotes: {}
   };
+  */
   rooms[room].players.forEach((player) => {
     player.score = 0;
   });
+  rooms[room].currentRound = 0;
   sendNewAcronym(room, false);
 }
 
