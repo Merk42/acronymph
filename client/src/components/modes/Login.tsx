@@ -1,19 +1,16 @@
-import { useState, useEffect } from "react"
-import { io } from 'socket.io-client';
+import { useState } from "react"
 
-const socket = io("http://localhost:3001");
-
-function Login(props:any) {
+function Login({ joinRoom }:{ joinRoom: Function}) {
     const [username, setUsername] = useState("myName");
     const [room, setRoom] = useState("myRoom");
 
-    const joinRoom = () => {
+    const handleJoin = () => {
 
       console.log('attempt to join room', room)
       /*
       socket.emit("join_room", room)
       */
-      props.joinRoom(room, username)
+      joinRoom(room, username)
     }
 
 
@@ -48,7 +45,7 @@ function Login(props:any) {
             />
             <button
                 className="mt-4 px-1 py-2 bg-blue-500 text-white rounded-md cursor-pointer"
-                onClick={joinRoom}>join</button>
+                onClick={handleJoin}>join</button>
         </div>
     )
 }

@@ -1,23 +1,23 @@
 import { useMemo, useRef, useState } from "react";
 
-function EnterAcro(props:any) {
+function EnterAcro({acronym, onAcroEntered}:{acronym:string[]; onAcroEntered: Function}) {
     const [isEntered, setIsEntered] = useState(false);
 
     const inputRef = useRef(null);
     const [phrase, setPhrase] = useState('');
 
     const isValid = useMemo<boolean>(() => {
-        if (phrase.toLowerCase().split(" ").length !== props.ACRONYM.length) {
+        if (phrase.toLowerCase().split(" ").length !== acronym.length) {
             return false;
         }
         const WORDS = phrase.toLowerCase().split(" ");
         for (let i = 0; i < WORDS.length; i++) {
-            if (WORDS[i].slice(0, 1) !== props.ACRONYM[i]) {
+            if (WORDS[i].slice(0, 1) !== acronym[i]) {
                 return false;
             }
         }
         return true
-    }, [phrase, props.ACRONYM]);
+    }, [phrase, acronym]);
 
 
     const phraseArray = useMemo<string[]>(() => {
@@ -25,17 +25,14 @@ function EnterAcro(props:any) {
     }, [phrase])
 
     const handleClick = () => {
-        if (inputRef.current) {
-            inputRef.current.focus();
-        }
         setIsEntered(true);
-        props.onAcroEntered(phrase)
+        onAcroEntered(phrase)
     };
 
     return (
         <div>  
             <p className="text-center uppercase text-7xl font-bold">
-            {props.ACRONYM.join("")}
+            {acronym.join("")}
             </p>
             { isEntered === false && 
                 <div className="flex mt-16">

@@ -123,7 +123,7 @@ function App() {
           {(() => {
             switch (roundMode) {
               case 'enter':
-                return <EnterAcro ACRONYM={currentacro} onAcroEntered={acroEntered}/>
+                return <EnterAcro acronym={currentacro} onAcroEntered={acroEntered}/>
               case 'vote':
                 return <VoteAcro acros={enteredAcronyms} onVoted={votedFor} id={userID}/>
               case 'results':

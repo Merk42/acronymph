@@ -1,6 +1,6 @@
-function RoundDisplay(props:any) {
+function RoundDisplay({ round, mode }: { round: number, mode: string } ) {
     return (
-        <h1 className="text-xl">Round {props.round}: {props.mode}</h1>
+        <h1 className="text-xl">Round {round}: {mode}</h1>
     )
 }
 
