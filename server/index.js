@@ -76,9 +76,7 @@ io.on("connection", (socket) => {
         io.to(room).emit("players_updated", rooms[room].players);
         // TODO fix buggy behavior of always increasing round when player enters
         if (rooms[room].players.length === 1) {
-          sendNewAcronym(room, false);
-        } else {
-          sendNewAcronym(room, true);
+          sendNewAcronym(room);
         }
         socket.on("disconnect", () => {
           const PLAYERS_CONNECTED = rooms[room].players.filter(player => player.id !== socket.id);
@@ -104,7 +102,7 @@ io.on("connection", (socket) => {
 
 })
 
-function sendNewAcronym(room, wait) {
+function sendNewAcronym(room) {
   if (rooms[room].players.length === 0) {
     clearTimeout(rooms[room].modeTimeout);
     delete rooms[room];
@@ -117,26 +115,24 @@ function sendNewAcronym(room, wait) {
     gameOver(room)
     return;
   }
-  
-  if (!wait){
-    rooms[room].currentRound++;
-    const ACROLENGTH = acroLengthFromRound(rooms[room].currentRound);
-    const ACRO = generateAcro(ACROLENGTH);
-    rooms[room].currentAcronym = ACRO;
-  
-    rooms[room].currentEntries = [];
-    rooms[room].currentVotes = {};
-    io.to(room).emit("newAcronym", {
-      acronym: ACRO,
-      timer: TIME_TO_ENTER,
-      round: rooms[room].currentRound
-    });
-    clearTimeout(rooms[room].modeTimeout);
-    rooms[room].modeTimeout = setTimeout(() => {
-      console.log("times up, now vote!")
-      voteOnAcroym(room);
-    }, TIME_TO_ENTER);
-  }
+    
+  rooms[room].currentRound++;
+  const ACROLENGTH = acroLengthFromRound(rooms[room].currentRound);
+  const ACRO = generateAcro(ACROLENGTH);
+  rooms[room].currentAcronym = ACRO;
+
+  rooms[room].currentEntries = [];
+  rooms[room].currentVotes = {};
+  io.to(room).emit("newAcronym", {
+    acronym: ACRO,
+    timer: TIME_TO_ENTER,
+    round: rooms[room].currentRound
+  });
+  clearTimeout(rooms[room].modeTimeout);
+  rooms[room].modeTimeout = setTimeout(() => {
+    console.log("times up, now vote!")
+    voteOnAcroym(room);
+  }, TIME_TO_ENTER);
   
 }
 
@@ -167,19 +163,19 @@ function resultsOfAcronym(room) {
   clearTimeout(rooms[room].modeTimeout);
   rooms[room].modeTimeout = setTimeout(() => {
     console.log("times up, next acro coming up!");
-    sendNewAcronym(room, false);
+    sendNewAcronym(room);
   }, TIME_TO_VIEW);
 }
 
 function gameOver(room) {
   const SORTED = rooms[room].players.sort((a, b) => {
     if (a.score < b.score) {
-      return 1; // a comes before b
+      return 1;
     }
     if (a.score > b.score) {
-      return -1;  // a comes after b
+      return -1;
     }
-    return 0; // a and b are equal
+    return 0;
   });
   if (SORTED.length > 1 && SORTED[0].score === SORTED[1].score) {
     io.to(room).emit("gameover", {
