@@ -131,13 +131,13 @@ function sendNewAcronym(room, wait) {
       timer: TIME_TO_ENTER,
       round: rooms[room].currentRound
     });
+    clearTimeout(rooms[room].modeTimeout);
+    rooms[room].modeTimeout = setTimeout(() => {
+      console.log("times up, now vote!")
+      voteOnAcroym(room);
+    }, TIME_TO_ENTER);
   }
-
-  clearTimeout(rooms[room].modeTimeout);
-  rooms[room].modeTimeout = setTimeout(() => {
-    console.log("times up, now vote!")
-    voteOnAcroym(room);
-  }, TIME_TO_ENTER);
+  
 }
 
 function voteOnAcroym(room) {
