@@ -44,60 +44,54 @@ function generateAcro(length = 3) {
 const rooms = {};
 
 io.on("connection", (socket) => {
-    console.log("User Connected", socket.id);
-    socket.on("joinRoom", (room, name) => {
-        console.log(name, 'has joined the game')
-        socket.join(room);
-        console.log("User Joined", socket.id);
-        io.to(room).emit("enter_room", socket.id, name);
-        if (!rooms[room]) {
-          rooms[room] = {
-            players: [],
-            modeTimeout: null,
-            currentAcronym: null,
-            currentRound: 0,
-            currentEntries: [],
-            currentVotes: {}
-          };
-        }
-        // to make score zero
-      //   if(rooms[room]){
-      //   rooms[room].players.forEach((player) => {
-      //     player.score = 0;
-      //   });
-      // }
-
-        rooms[room].players.push({ 
-          id: socket.id,
-          name: name,
-          score: 0
-         });
-        // TODO also do on score updates
-        io.to(room).emit("players_updated", rooms[room].players);
-        // TODO fix buggy behavior of always increasing round when player enters
-        if (rooms[room].players.length === 1) {
-          sendNewAcronym(room);
-        }
-        socket.on("disconnect", () => {
-          const PLAYERS_CONNECTED = rooms[room].players.filter(player => player.id !== socket.id);
-          rooms[room].players = PLAYERS_CONNECTED;
-          io.to(room).emit("players_updated", rooms[room].players);
-        })          
-        // }
-    });
-
-    socket.on("acroEntered", (room, acronym) => {
-      console.log(socket.id, 'entered', acronym)
-      // maybe should
-      rooms[room].currentEntries.push({
+  console.log("User Connected", socket.id);
+  socket.on("joinRoom", (room, name) => {
+    if (!rooms[room]) {
+      rooms[room] = {
+        players: [],
+        modeTimeout: null,
+        currentAcronym: null,
+        currentRound: 0,
+        currentEntries: [],
+        currentVotes: {}
+      };
+    }
+    if (rooms[room].players.filter(player => player.name === name).length > 0) {
+      console.log("error, player of", name, "already exists");
+      io.to(room).emit("duplicate_name");
+    } else {
+      console.log(name, 'has joined the game')
+      socket.join(room);
+      console.log("User Joined", socket.id);
+      io.to(room).emit("enter_room", socket.id, name);
+      rooms[room].players.push({ 
         id: socket.id,
-        acro: acronym
+        name: name,
+        score: 0
       });
-    });
+      io.to(room).emit("players_updated", rooms[room].players);
+      if (rooms[room].players.length === 1) {
+        sendNewAcronym(room);
+      }
+    }
+    socket.on("disconnect", () => {
+      const PLAYERS_CONNECTED = rooms[room].players.filter(player => player.id !== socket.id);
+      rooms[room].players = PLAYERS_CONNECTED;
+      io.to(room).emit("players_updated", rooms[room].players);
+    })          
+  });
 
-    socket.on("voted", (room, acroid, userid) => {
-      rooms[room].currentVotes[userid] = acroid;
-    })
+  socket.on("acroEntered", (room, acronym) => {
+    console.log(socket.id, 'entered', acronym)
+    rooms[room].currentEntries.push({
+      id: socket.id,
+      acro: acronym
+    });
+  });
+
+  socket.on("voted", (room, acroid, userid) => {
+    rooms[room].currentVotes[userid] = acroid;
+  })
 
 
 })
