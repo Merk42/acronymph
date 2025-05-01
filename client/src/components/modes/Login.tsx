@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-function Login({ joinRoom, isNameTaken }:{ joinRoom: Function, isNameTaken: boolean}) {
+function Login({ joinRoom, enterError }:{ joinRoom: Function, enterError: string}) {
     const [username, setUsername] = useState("myName");
     const [room, setRoom] = useState("myRoom");
 
@@ -46,9 +46,7 @@ function Login({ joinRoom, isNameTaken }:{ joinRoom: Function, isNameTaken: bool
             <button
                 className="mt-4 px-1 py-2 bg-blue-500 text-white rounded-md cursor-pointer"
                 onClick={handleJoin}>join</button>
-                { isNameTaken && 
-                <div>There is already someone in the room with that username</div>
-                }
+            <div className="text-red-500 font-bold">{enterError}</div>
         </div>
     )
 }

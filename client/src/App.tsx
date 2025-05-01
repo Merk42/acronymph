@@ -16,7 +16,7 @@ import RoundDisplay from './components/RoundDisplay';
 import { Player } from './types/Player';
 import { EnteredAcro } from './types/Entry';
 
-const socket = io("http://localhost:3001");
+const socket = io("localhost:3001");
 
 type MODE = '' | 'wait' | 'enter' | 'vote' | 'results' | 'gameover';
 
@@ -35,7 +35,7 @@ function App() {
   const [winner, setWinner] = useState<string>('');
   const [isTieGame, setIsTieGame] = useState<boolean>(false);
 
-  const [isNameTaken, setIsNameTaken] = useState<boolean>(false);
+  const [enterError, setEnterError] = useState<string>("");
 
   useEffect(() => {
     socket.on('newAcronym', (data) => {
@@ -85,10 +85,12 @@ function App() {
       if (name === userName) {
         setUserID(id);
         setRoundMode('wait');
-        setIsNameTaken(false)
+        setEnterError("")
       }
     })
   }, [userName])
+
+
 
   useEffect(() => {
     socket.on("players_updated", (players) => {
@@ -97,11 +99,10 @@ function App() {
   }, [])
 
   useEffect(() => {
-    socket.on("duplicate_name", () => {
-      console.log('duplicate name yo!')
-      setIsNameTaken(true);
+    socket.on("join_error", (error) => {
+      setEnterError(error);
     })
-  }, [isNameTaken])
+  }, [])
 
   function acroEntered(e:string) {
     socket.emit('acroEntered', room, e)
@@ -143,7 +144,7 @@ function App() {
               case 'wait':
                 return <PleaseWait/>
               default:
-                return <Login joinRoom={joinRoom} isNameTaken={isNameTaken}/>
+                return <Login joinRoom={joinRoom} enterError={enterError}/>
             }
           })()}
            </div>
