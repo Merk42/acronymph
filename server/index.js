@@ -7,10 +7,17 @@ const { Server } = require("socket.io");
 app.use(cors());
 
 const server = http.createServer(app);
-
+/*
+const io = new Server(server, {
+  cors: {
+      origin: "https://markecurtis.com",
+      methods: ["GET", "POST"]
+  }
+});
+*/
 const io = new Server(server, {
     cors: {
-        origin: "https://markecurtis.com",
+        origin: "http://localhost:5173",
         methods: ["GET", "POST"]
     }
 });
@@ -57,8 +64,9 @@ io.on("connection", (socket) => {
       };
     }
     if (rooms[room].players.filter(player => player.name === name).length > 0) {
-      console.log("error, player of", name, "already exists");
-      io.to(room).emit("duplicate_name");
+      io.to(socket.id).emit("join_error", `A player with the username of ${player.name} already exists in ${room}`);
+    } else if (rooms[room].players.length >= 20) {
+      io.to(socket.id).emit("join_error", `The ${room} room is full`);
     } else {
       console.log(name, 'has joined the game')
       socket.join(room);
