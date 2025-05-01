@@ -7,21 +7,21 @@ const { Server } = require("socket.io");
 app.use(cors());
 
 const server = http.createServer(app);
-/*
+
 const io = new Server(server, {
   cors: {
       origin: "https://markecurtis.com",
       methods: ["GET", "POST"]
   }
 });
-*/
+/*
 const io = new Server(server, {
     cors: {
         origin: "http://localhost:5173",
         methods: ["GET", "POST"]
     }
 });
-
+*/
 const TIME_TO_ENTER = 30000;
 const TIME_TO_VOTE = 20000;
 const TIME_TO_VIEW = 10000;

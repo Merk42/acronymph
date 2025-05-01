@@ -16,8 +16,8 @@ import RoundDisplay from './components/RoundDisplay';
 import { Player } from './types/Player';
 import { EnteredAcro } from './types/Entry';
 
-// const socket = io("https://acronymph.onrender.com/");
-const socket = io("localhost:3001");
+const socket = io("https://acronymph.onrender.com/");
+// const socket = io("localhost:3001");
 
 type MODE = '' | 'wait' | 'enter' | 'vote' | 'results' | 'gameover';
 
