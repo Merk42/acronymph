@@ -31,12 +31,12 @@ function Login({ joinRoom, enterError }:{ joinRoom: Function, enterError: string
                 }}
             />
             <label
-                className="block text-sm/6 font-medium text-gray-900 dark:text-white mt-4"
+                className="hidden block text-sm/6 font-medium text-gray-900 dark:text-white mt-4"
                 htmlFor="room">room</label>
             <input
                 className="outline-1 outline-gray-300 block min-w-0 grow py-1.5 pr-3 pl-1 text-base text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-blue-500"
                 id="room"
-                type="text"
+                type="hidden"
                 placeholder="room"
                 value={room}
                 onChange={(event) => {
