@@ -34,9 +34,29 @@ function acroLengthFromRound(round){
 }
 
 function getRandomLetter() {
+  /*
   const alphabet = "abcdefghijklmnopqrstuvwxyz";
   const randomIndex = Math.floor(Math.random() * alphabet.length);
   return alphabet[randomIndex];
+  */
+  /* WEIGHTED BY FREQUENCY OF STARTING A WORD IN ENGLISH */
+  const ALPHABET = 'abcdefghijklmnopqrstuvwxyz';
+  const ALPHA_ARRAY = ALPHABET.split("");
+  const WEIGHTS = [570, 60, 940, 610, 390, 410, 330, 370, 390, 110, 100, 310, 560, 220, 250, 770, 49, 600, 1100, 500, 290, 150, 270, 5, 36, 24]
+  const cumulativeWeights = [];
+  let sum = 0;
+  for (let i = 0; i < WEIGHTS.length; i++) {
+    sum += WEIGHTS[i];
+    cumulativeWeights.push(sum);
+  }
+
+  const randomNumber = Math.random() * sum;
+
+  for (let i = 0; i < cumulativeWeights.length; i++) {
+    if (randomNumber < cumulativeWeights[i]) {
+      return ALPHA_ARRAY[i];
+    }
+  }
 }
   
 function generateAcro(length = 3) {
