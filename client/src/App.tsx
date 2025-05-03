@@ -142,11 +142,11 @@ function App() {
         
     }
   }
-
+/*
   useEffect(() => {
     demoMode('wait')
   }, [])
-  
+  */
   return (
       <div className={`grid gap-8 p-8 ${roundMode ? 'sm:grid-cols-[25ch_1fr]' : ''} `}>
         { roundMode &&
