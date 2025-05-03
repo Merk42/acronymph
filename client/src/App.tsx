@@ -117,6 +117,7 @@ function App() {
     socket.emit('voted', room, id, userID)
   }
 
+  /*
   function demoMode(mode:MODE) {
     setUserID(PLACEHOLDER_ID);
     setRoundMode(mode);
@@ -142,7 +143,7 @@ function App() {
         
     }
   }
-/*
+
   useEffect(() => {
     demoMode('wait')
   }, [])
