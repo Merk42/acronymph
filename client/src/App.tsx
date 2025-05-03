@@ -148,11 +148,11 @@ function App() {
   }, [])
   */
   return (
-      <div className={`grid gap-8 p-8 ${roundMode ? 'sm:grid-cols-[25ch_1fr]' : ''} `}>
+      <div className={`grid gap-8 ${roundMode ? 'sm:grid-cols-[25ch_1fr]' : ''} `}>
         { roundMode &&
         <Players players={players} id={userID} />
         }
-        <main>
+        <main className='p-4'>
           { roundNumber > 0 &&
             <div className='flex mb-8'>
               <RoundDisplay round={roundNumber} mode={roundMode}/>
