@@ -14,7 +14,9 @@ import Players from './components/Players';
 import RoundDisplay from './components/RoundDisplay';
 
 import { Player } from './types/Player';
-import { EnteredAcro } from './types/Entry';
+import { EnteredAcro, VotedAcro } from './types/Entry';
+import { NewAcronymData, VoteOnAcronymData, ResultsOfAcronymData, GameoverData } from './types/SocketEvent';
+import { PLACEHOLDER_ACRONYM, PLACEHOLDER_ENTRIES, PLACEHOLDER_ID, PLACEHOLDER_PLAYERS } from './placeholders';
 
 const socket = io("https://acronymph.onrender.com/");
 // const socket = io("localhost:3001");
@@ -40,34 +42,29 @@ function App() {
   const [enterError, setEnterError] = useState<string>("");
 
   useEffect(() => {
-    socket.on('newAcronym', (data) => {
-      console.log('newAcronym...', data)
+    socket.on('newAcronym', (data:NewAcronymData) => {
       setCurrentacro(data.acronym);
       setRoundNumber(data.round);
       setTimer(data.timer); 
       setRoundMode('enter');
     });
 
-    socket.on('voteOnAcronym', (data) => {
-      console.log('voteOnAcronym...', data);
-      console.log('list', data.acrosToVote);
+    socket.on('voteOnAcronym', (data:VoteOnAcronymData) => {
       setEnteredAcronyms(data.entries);
       setRoundNumber(data.round);
       setTimer(data.timer);
       setRoundMode('vote')
     });
 
-    socket.on('resultsOfAcronym', (data) => {
-      console.log('resultsOfAcronym...', data)
+    socket.on('resultsOfAcronym', (data:ResultsOfAcronymData) => {
       setPlayers(data.players);
-      setEnteredAcronyms(data.entries);
+      setVotedAcronyms(data.entries);
       setRoundNumber(data.round);
       setTimer(data.timer);
       setRoundMode('results')
     })
 
-    socket.on('gameover', (data) => {
-      console.log('gameover', data)
+    socket.on('gameover', (data:GameoverData) => {
       setWinner(data.winner)
       setIsTieGame(data.tie);
       setTimer(data.timer);
@@ -83,7 +80,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    socket.on("enter_room", (id, name) => {
+    socket.on("enter_room", (id:string, name:string) => {
       if (name === userName) {
         setUserID(id);
         setRoundMode('wait');
@@ -95,13 +92,13 @@ function App() {
 
 
   useEffect(() => {
-    socket.on("players_updated", (players) => {
+    socket.on("players_updated", (players:Player[]) => {
       setPlayers(players)
     })
   }, [])
 
   useEffect(() => {
-    socket.on("join_error", (error) => {
+    socket.on("join_error", (error:string) => {
       setEnterError(error);
     })
   }, [])
