@@ -149,7 +149,7 @@ function App() {
   }, [])
   */
   return (
-      <div className={`grid gap-8 ${roundMode ? 'sm:grid-cols-[25ch_1fr]' : ''} `}>
+      <div className={`sm:min-h-dvh grid gap-8 ${roundMode ? 'sm:grid-cols-[25ch_1fr]' : ''} `}>
         { roundMode &&
         <Players players={players} id={userID} />
         }
