@@ -1,19 +1,19 @@
 import { useMemo } from "react"
-import { EnteredAcro } from "../../types/Entry";
+import { VotedAcro } from "../../types/Entry";
 
 interface ResultsProps {
-    acros: EnteredAcro[];
+    acros: VotedAcro[];
     id: string;
 }
 
 function Results({ acros, id }: ResultsProps) {
     const sortedAcro = useMemo(() => {
         if (acros) {
-            return acros.sort((a:EnteredAcro, b:EnteredAcro) => {
-                if (a.votes && b.votes && a.votes < b.votes) {
+            return acros.sort((a:VotedAcro, b:VotedAcro) => {
+                if (a.votes < b.votes) {
                     return 1;
                 }
-                if (a.votes && b.votes && a.votes > b.votes) {
+                if (a.votes > b.votes) {
                     return -1;
                 }
                 return 0;

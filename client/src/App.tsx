@@ -31,6 +31,7 @@ function App() {
   const [roundNumber, setRoundNumber] = useState<number>(0);
   const [roundMode, setRoundMode] = useState<MODE>(''); // or vote, or stuff for lightning round?
   const [enteredAcronyms, setEnteredAcronyms] =  useState<EnteredAcro[]>([]);
+  const [votedAcronyms, setVotedAcronyms] =  useState<VotedAcro[]>([]);
   const [timer, setTimer] = useState<number>(0);
   const [players, setPlayers] = useState<Player[]>([]);
   const [winner, setWinner] = useState<string>('');
@@ -56,7 +57,7 @@ function App() {
       setRoundMode('vote')
     });
 
-    socket.on('resultsOfAcronym', (data)=>{
+    socket.on('resultsOfAcronym', (data) => {
       console.log('resultsOfAcronym...', data)
       setPlayers(data.players);
       setEnteredAcronyms(data.entries);
@@ -118,6 +119,36 @@ function App() {
   function votedFor(id:string) {
     socket.emit('voted', room, id, userID)
   }
+
+  function demoMode(mode:MODE) {
+    setUserID(PLACEHOLDER_ID);
+    setRoundMode(mode);
+    setPlayers(PLACEHOLDER_PLAYERS);
+    setRoundNumber(5);
+    switch (mode) {
+      case 'wait':
+        
+        break;
+      case 'enter':
+        setCurrentacro(PLACEHOLDER_ACRONYM);
+        break;
+      case 'vote':
+        setVotedAcronyms(PLACEHOLDER_ENTRIES);
+        break;
+      case 'results':
+        setEnteredAcronyms(PLACEHOLDER_ENTRIES);
+        break;
+      case 'gameover':
+        setWinner(PLACEHOLDER_PLAYERS[10].name)
+        break;
+      default:
+        
+    }
+  }
+
+  useEffect(() => {
+    demoMode('wait')
+  }, [])
   
   return (
       <div className={`grid gap-8 p-8 ${roundMode ? 'sm:grid-cols-[25ch_1fr]' : ''} `}>
@@ -139,7 +170,7 @@ function App() {
               case 'vote':
                 return <VoteAcro acros={enteredAcronyms} onVoted={votedFor} id={userID}/>
               case 'results':
-                return <Results acros={enteredAcronyms} id={userID}/>
+                return <Results acros={votedAcronyms} id={userID}/>
               case 'gameover':
                 return <GameOver winner={winner} tie={isTieGame}/>
               case 'wait':
