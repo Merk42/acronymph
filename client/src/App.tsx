@@ -16,7 +16,7 @@ import RoundDisplay from './components/RoundDisplay';
 import { Player } from './types/Player';
 import { EnteredAcro, VotedAcro } from './types/Entry';
 import { NewAcronymData, VoteOnAcronymData, ResultsOfAcronymData, GameoverData } from './types/SocketEvent';
-import { PLACEHOLDER_ACRONYM, PLACEHOLDER_ENTRIES, PLACEHOLDER_ID, PLACEHOLDER_PLAYERS } from './placeholders';
+// import { PLACEHOLDER_ACRONYM, PLACEHOLDER_ENTRIES, PLACEHOLDER_ID, PLACEHOLDER_PLAYERS } from './placeholders';
 
 const socket = io("https://acronymph.onrender.com/");
 // const socket = io("localhost:3001");
