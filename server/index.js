@@ -64,8 +64,16 @@ function generateAcro(length = 3) {
   for (let i = 0; i < length; i++) {
     ACRO.push(getRandomLetter())
   }
+  if (isBadAcro(ACRO)) {
+    return generateAcro(length);
+  }
   // TODO make sure result isn't some 'bad word';
   return ACRO
+}
+
+function isBadAcro(acro) {
+  const DISALLOWED = ['ass', 'cunt', 'bitch'];
+  return DISALLOWED.includes(acro.join(""))
 }
 
 const rooms = {};
