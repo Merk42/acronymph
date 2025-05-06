@@ -149,13 +149,13 @@ function App() {
   }, [])
   */
   return (
-      <div className={`sm:min-h-dvh grid gap-8 ${roundMode ? 'sm:grid-cols-[25ch_1fr]' : ''} `}>
+      <div className={`sm:min-h-dvh grid sm:gap-8 ${roundMode ? 'sm:grid-cols-[25ch_1fr]' : ''} `}>
         { roundMode &&
         <Players players={players} id={userID} />
         }
         <main className='p-4'>
           { roundNumber > 0 &&
-            <div className='flex mb-8'>
+            <div className='flex items-center mb-8'>
               <RoundDisplay round={roundNumber} mode={roundMode}/>
               <Countdown timer={timer}/>
             </div>
