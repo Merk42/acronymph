@@ -24,7 +24,7 @@ function Results({ acros, id }: ResultsProps) {
 
     if (sortedAcro.length) {
         return(
-            <>
+            <div className="max-w-xl m-auto">
                 <p className="text-xl">Here are the results</p>
                 <ul className="list-none">
                     { sortedAcro.map((entry:any) => 
@@ -34,7 +34,7 @@ function Results({ acros, id }: ResultsProps) {
                     </li>
                     )}
                 </ul>
-            </>
+            </div>
         )
     } else {
         return (

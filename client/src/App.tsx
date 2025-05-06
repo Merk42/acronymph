@@ -160,7 +160,7 @@ function App() {
               <Countdown timer={timer}/>
             </div>
           }
-          <div className='max-w-xl m-auto'>
+          <div className=''>
           {(() => {
             switch (roundMode) {
               case 'enter':

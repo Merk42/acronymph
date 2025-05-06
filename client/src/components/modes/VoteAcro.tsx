@@ -24,7 +24,7 @@ function VoteAcro({ acros, onVoted, id }: VoteAcroProps) {
 
     if (shuffled.length) {
         return(
-            <fieldset>
+            <fieldset className="max-w-xl m-auto">
                 <legend className="text-xl">Vote for your favorite</legend>
                 { shuffled.map((entry:any) => 
                 <div key={entry.id} className="mt-4">

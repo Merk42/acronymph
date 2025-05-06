@@ -35,7 +35,7 @@ function EnterAcro({acronym, onAcroEntered}:{acronym:string[]; onAcroEntered: Fu
             {acronym.join("")}
             </p>
             { isEntered === false && 
-                <div className="flex mt-16">
+                <div className="max-w-xl m-auto flex mt-16">
                     <input
                         className="rounded-tl-lg rounded-bl-lg sm:text-2xl outline-1 -outline-offset-1 outline-gray-300 block min-w-0 grow py-1.5 px-3 text-gray-900 dark:text-white placeholder:text-gray-400"
                         type="text"
@@ -49,7 +49,7 @@ function EnterAcro({acronym, onAcroEntered}:{acronym:string[]; onAcroEntered: Fu
                 </div>
             }
             { isEntered === true && 
-                <p className="flex justify-center gap-2 mt-16 text-2xl">
+                <p className="flex flex-wrap justify-center overflow-x-auto gap-2 mt-16 text-2xl">
                     { phraseArray.map((word:string) => 
                         <p className="first-letter:font-bold first-letter:uppercase first-letter:text-3xl">{word}</p>
                     )}
