@@ -1,17 +1,18 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 
 function Login({ joinRoom, enterError }:{ joinRoom: Function, enterError: string}) {
-    const [username, setUsername] = useState("myName");
+    const [username, setUsername] = useState("");
     const [room, setRoom] = useState("myRoom");
 
     const handleJoin = () => {
-
-      console.log('attempt to join room', room)
-      /*
-      socket.emit("join_room", room)
-      */
-      joinRoom(room, username)
+        if (canLogIn) {
+            joinRoom(room, username)
+        }
     }
+
+    const canLogIn = useMemo<boolean>(() => {
+        return username !== "" && room !== ""
+    }, [username, room])
 
 
     return (
@@ -44,7 +45,8 @@ function Login({ joinRoom, enterError }:{ joinRoom: Function, enterError: string
                 }}
             />
             <button
-                className="mt-4 px-1 py-2 bg-blue-500 text-white rounded-md cursor-pointer"
+                className="mt-4 px-1 py-2 bg-blue-500 text-white rounded-md cursor-pointer disabled:bg-gray-500 disabled:cursor-not-allowed"
+                disabled={!canLogIn}
                 onClick={handleJoin}>join</button>
             <div className="text-red-500 font-bold">{enterError}</div>
         </div>
