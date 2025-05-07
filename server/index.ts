@@ -22,18 +22,54 @@ const io = new Server(server, {
     }
 });
 */
-const TIMES_TO_ENTER = [30000, 30000, 30000, 40000, 40000, 30000, 30000, 30000, 40000, 40000]
+const TIME_TO_ENTER = 30000;
 const TIME_TO_VOTE = 20000;
 const TIME_TO_VIEW = 10000;
 const TIME_TO_CELEBRATE = 15000;
 const MAX_ROUNDS = 10;
 
-function acroLengthFromRound(round){
+type Acronym = string[];
+
+interface Rooms {
+  [key: string]: Room;
+}
+
+interface CurrentEntry {
+  id: string;
+  acro: string;
+  votes?: number;
+}
+
+interface CurrentVotes {
+  [key: string]: string;
+}
+
+interface ValueCounts {
+  [key: string]: number;
+}
+
+interface Room {
+  players: Player[],
+  modeTimeout: any,
+  currentAcronym: Acronym,
+  currentRound: number,
+  currentEntries: CurrentEntry[],
+  currentVotes: CurrentVotes
+}
+
+interface Player {
+  name: string;
+  id: string;
+  score: number;
+}
+
+
+function acroLengthFromRound(round:number):number{
   const NEWLENGTH = ((round-1) % 5) + 3;
   return NEWLENGTH;
 }
 
-function getRandomLetter() {
+function getRandomLetter():string {
   /*
   const alphabet = "abcdefghijklmnopqrstuvwxyz";
   const randomIndex = Math.floor(Math.random() * alphabet.length);
@@ -43,7 +79,7 @@ function getRandomLetter() {
   const ALPHABET = 'abcdefghijklmnopqrstuvwxyz';
   const ALPHA_ARRAY = ALPHABET.split("");
   const WEIGHTS = [570, 60, 940, 610, 390, 410, 330, 370, 390, 110, 100, 310, 560, 220, 250, 770, 49, 600, 1100, 500, 290, 150, 270, 5, 36, 24]
-  const cumulativeWeights = [];
+  const cumulativeWeights:number[] = [];
   let sum = 0;
   for (let i = 0; i < WEIGHTS.length; i++) {
     sum += WEIGHTS[i];
@@ -57,10 +93,11 @@ function getRandomLetter() {
       return ALPHA_ARRAY[i];
     }
   }
+  return ALPHA_ARRAY[0]
 }
   
-function generateAcro(length = 3) {
-  const ACRO = [];
+function generateAcro(length = 3):Acronym {
+  const ACRO:Acronym = [];
   for (let i = 0; i < length; i++) {
     ACRO.push(getRandomLetter())
   }
@@ -71,28 +108,28 @@ function generateAcro(length = 3) {
   return ACRO
 }
 
-function isBadAcro(acro) {
+function isBadAcro(acro:string[]):boolean {
   const DISALLOWED = ['ass', 'cunt', 'bitch'];
   return DISALLOWED.includes(acro.join(""))
 }
 
-const rooms = {};
+const rooms:Rooms = {};
 
-io.on("connection", (socket) => {
+io.on("connection", (socket:any) => {
   console.log("User Connected", socket.id);
-  socket.on("joinRoom", (room, name) => {
+  socket.on("joinRoom", (room:string, name:string) => {
     if (!rooms[room]) {
       rooms[room] = {
         players: [],
         modeTimeout: null,
-        currentAcronym: null,
+        currentAcronym: [],
         currentRound: 0,
         currentEntries: [],
         currentVotes: {}
       };
     }
-    if (rooms[room].players.filter(player => player.name === name).length > 0) {
-      io.to(socket.id).emit("join_error", `A player with the username of ${player.name} already exists in ${room}`);
+    if (rooms[room].players.filter((player:Player) => player.name === name).length > 0) {
+      io.to(socket.id).emit("join_error", `A player with the username of ${name} already exists in ${room}`);
     } else if (rooms[room].players.length >= 20) {
       io.to(socket.id).emit("join_error", `The ${room} room is full`);
     } else {
@@ -117,7 +154,7 @@ io.on("connection", (socket) => {
     })          
   });
 
-  socket.on("acroEntered", (room, acronym) => {
+  socket.on("acroEntered", (room:string, acronym:string) => {
     console.log(socket.id, 'entered', acronym)
     rooms[room].currentEntries.push({
       id: socket.id,
@@ -125,14 +162,14 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("voted", (room, acroid, userid) => {
+  socket.on("voted", (room:string, acroid:string, userid:string) => {
     rooms[room].currentVotes[userid] = acroid;
   })
 
 
 })
 
-function sendNewAcronym(room) {
+function sendNewAcronym(room:string) {
   if (rooms[room].players.length === 0) {
     clearTimeout(rooms[room].modeTimeout);
     delete rooms[room];
@@ -153,7 +190,6 @@ function sendNewAcronym(room) {
 
   rooms[room].currentEntries = [];
   rooms[room].currentVotes = {};
-  const TIME_TO_ENTER = TIMES_TO_ENTER[rooms[room].currentRound-1];
   io.to(room).emit("newAcronym", {
     acronym: ACRO,
     timer: TIME_TO_ENTER,
@@ -167,7 +203,7 @@ function sendNewAcronym(room) {
   
 }
 
-function voteOnAcroym(room) {
+function voteOnAcroym(room:string) {
   io.to(room).emit("voteOnAcronym", {      
     entries: rooms[room].currentEntries,
     timer: TIME_TO_VOTE,
@@ -180,7 +216,7 @@ function voteOnAcroym(room) {
   }, TIME_TO_VOTE);
 }
 
-function resultsOfAcronym(room) {
+function resultsOfAcronym(room:string) {
   const votesPerId = countValues(rooms[room].currentVotes);
   const updatedPlayersAndScore = updateScore(rooms[room].players, votesPerId);
   // TODO maybe update players on next phase?
@@ -198,7 +234,7 @@ function resultsOfAcronym(room) {
   }, TIME_TO_VIEW);
 }
 
-function gameOver(room) {
+function gameOver(room:string) {
   const SORTED = rooms[room].players.sort((a, b) => {
     if (a.score < b.score) {
       return 1;
@@ -227,18 +263,18 @@ function gameOver(room) {
   }, TIME_TO_CELEBRATE);
 }
 
-function startNewGame(room) {
+function startNewGame(room:string) {
   const RESET_PLAYERS = rooms[room].players.map(player => { 
     return { ...player, score:0 };
   });
   rooms[room].players = RESET_PLAYERS;
   io.to(room).emit("players_updated", rooms[room].players);
   rooms[room].currentRound = 0;
-  sendNewAcronym(room, false);
+  sendNewAcronym(room);
 }
 
-function countValues(obj) {
-  const valueCounts = {};
+function countValues(obj:CurrentVotes):ValueCounts {
+  const valueCounts:ValueCounts = {};
 
   for (const key in obj) {
     if (obj.hasOwnProperty(key)) {
@@ -249,7 +285,7 @@ function countValues(obj) {
   return valueCounts;
 }
 
-function updateScore(players, votecount) {
+function updateScore(players:Player[], votecount:ValueCounts) {
   let updatedplayers = players;
   for (const key in votecount) {
     if (votecount.hasOwnProperty(key)) { // Check if the key is a direct property
@@ -263,7 +299,7 @@ function updateScore(players, votecount) {
   return updatedplayers
 }
 
-function pointsToAcros(acros, votecount) {
+function pointsToAcros(acros:CurrentEntry[], votecount:ValueCounts) {
   let updatedacros = acros;
   for (const key in votecount) {
     if (votecount.hasOwnProperty(key)) { // Check if the key is a direct property
