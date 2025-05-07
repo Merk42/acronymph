@@ -25,8 +25,10 @@ function EnterAcro({acronym, onAcroEntered}:{acronym:string[]; onAcroEntered: Fu
     }, [phrase])
 
     const handleClick = () => {
-        setIsEntered(true);
-        onAcroEntered(phrase.trim())
+        if (isValid) {
+            setIsEntered(true);
+            onAcroEntered(phrase.trim())
+        }
     };
 
     return (
@@ -35,7 +37,7 @@ function EnterAcro({acronym, onAcroEntered}:{acronym:string[]; onAcroEntered: Fu
             {acronym.join("")}
             </p>
             { isEntered === false && 
-                <div className="max-w-xl m-auto flex mt-16">
+                <form className="max-w-xl m-auto flex mt-16">
                     <input
                         className="rounded-tl-lg rounded-bl-lg sm:text-2xl outline-1 -outline-offset-1 outline-gray-300 block min-w-0 grow py-1.5 px-3 text-gray-900 dark:text-white placeholder:text-gray-400"
                         type="text"
@@ -46,7 +48,7 @@ function EnterAcro({acronym, onAcroEntered}:{acronym:string[]; onAcroEntered: Fu
                         className="px-4 py-8 bg-blue-500 text-white rounded-tr-lg rounded-br-lg cursor-pointer disabled:bg-gray-500 disabled:cursor-not-allowed"
                         disabled={!isValid}
                         onClick={handleClick}>submit</button>
-                </div>
+                </form>
             }
             { isEntered === true && 
                 <p className="flex flex-wrap justify-center overflow-x-auto gap-2 mt-16 text-2xl">
