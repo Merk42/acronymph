@@ -53,7 +53,7 @@ function EnterAcro({acronym, onAcroEntered}:{acronym:string[]; onAcroEntered: Fu
             { isEntered === true && 
                 <p className="flex flex-wrap justify-center overflow-x-auto gap-2 mt-16 text-2xl">
                     { phraseArray.map((word:string) => 
-                        <p className="first-letter:font-bold first-letter:uppercase first-letter:text-3xl">{word}</p>
+                        <span className="first-letter:font-bold first-letter:uppercase first-letter:text-3xl">{word}</span>
                     )}
                 </p>
             }
