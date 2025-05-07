@@ -7,10 +7,10 @@ function EnterAcro({acronym, onAcroEntered}:{acronym:string[]; onAcroEntered: Fu
     const [phrase, setPhrase] = useState('');
 
     const isValid = useMemo<boolean>(() => {
-        if (phrase.toLowerCase().split(" ").length !== acronym.length) {
+        if (phrase.trim().toLowerCase().split(" ").length !== acronym.length) {
             return false;
         }
-        const WORDS = phrase.toLowerCase().split(" ");
+        const WORDS = phrase.trim().toLowerCase().split(" ");
         for (let i = 0; i < WORDS.length; i++) {
             if (WORDS[i].slice(0, 1) !== acronym[i]) {
                 return false;
@@ -26,7 +26,7 @@ function EnterAcro({acronym, onAcroEntered}:{acronym:string[]; onAcroEntered: Fu
 
     const handleClick = () => {
         setIsEntered(true);
-        onAcroEntered(phrase)
+        onAcroEntered(phrase.trim())
     };
 
     return (
@@ -43,7 +43,7 @@ function EnterAcro({acronym, onAcroEntered}:{acronym:string[]; onAcroEntered: Fu
                         onChange={e => setPhrase(e.target.value)}
                         ref={inputRef}/>
                     <button
-                        className="px-4 py-8 bg-blue-500 text-white rounded-tr-lg rounded-br-lg cursor-pointer"
+                        className="px-4 py-8 bg-blue-500 text-white rounded-tr-lg rounded-br-lg cursor-pointer disabled:bg-gray-500 disabled:cursor-not-allowed"
                         disabled={!isValid}
                         onClick={handleClick}>submit</button>
                 </div>
