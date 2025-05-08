@@ -22,7 +22,7 @@ const io = new Server(server, {
     }
 });
 */
-const TIME_TO_ENTER = 30000;
+const TIMES_TO_ENTER = [30000, 30000, 30000, 40000, 40000, 30000, 30000, 30000, 40000, 40000]
 const TIME_TO_VOTE = 20000;
 const TIME_TO_VIEW = 10000;
 const TIME_TO_CELEBRATE = 15000;
@@ -199,6 +199,7 @@ function sendNewAcronym(room:string) {
 
   rooms[room].currentEntries = [];
   rooms[room].currentVotes = {};
+  const TIME_TO_ENTER = TIMES_TO_ENTER[rooms[room].currentRound-1];
   io.to(room).emit("newAcronym", {
     acronym: ACRO,
     timer: TIME_TO_ENTER,
