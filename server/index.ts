@@ -104,13 +104,22 @@ function generateAcro(length = 3):Acronym {
   if (isBadAcro(ACRO)) {
     return generateAcro(length);
   }
-  // TODO make sure result isn't some 'bad word';
   return ACRO
 }
 
+function stringHashCode(str:string):number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+}
+
 function isBadAcro(acro:string[]):boolean {
-  const DISALLOWED = ['ass', 'cunt', 'bitch'];
-  return DISALLOWED.includes(acro.join(""))
+  const DISALLOWED = [96897, 106251, 3065272, 93747762, -1045620280];
+  const HASHED = stringHashCode(acro.join(""));
+  return DISALLOWED.includes(HASHED)
 }
 
 const rooms:Rooms = {};
