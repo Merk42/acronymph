@@ -153,7 +153,12 @@ io.on("connection", (socket:any) => {
       });
       io.to(room).emit("players_updated", rooms[room].players);
       if (rooms[room].players.length === 1) {
-        sendNewAcronym(room);
+        startNewGame(room);
+      }
+      if (rooms[room].players.length === 2) {
+        // A CHALLENGER APPEARS
+        clearTimeout(rooms[room].modeTimeout);
+        startNewGame(room);
       }
     }
     socket.on("disconnect", () => {
