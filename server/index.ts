@@ -63,6 +63,12 @@ interface Player {
   score: number;
 }
 
+interface Socket {
+  on: Function;
+  id: string;
+  join: Function;
+}
+
 
 function acroLengthFromRound(round:number):number{
   const NEWLENGTH = ((round-1) % 5) + 3;
@@ -124,8 +130,7 @@ function isBadAcro(acro:string[]):boolean {
 
 const rooms:Rooms = {};
 
-io.on("connection", (socket:any) => {
-  console.log("User Connected", socket.id);
+io.on("connection", (socket:Socket) => {
   socket.on("joinRoom", (room:string, name:string) => {
     if (!rooms[room]) {
       rooms[room] = {
