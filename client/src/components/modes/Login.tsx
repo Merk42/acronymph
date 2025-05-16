@@ -3,10 +3,12 @@ import { useMemo, useState } from "react"
 function Login({ joinRoom, enterError }:{ joinRoom: Function, enterError: string}) {
     const [username, setUsername] = useState("");
     const [room, setRoom] = useState("myRoom");
-    const [joinCopy, setJoinCopy] = useState("join")
+    const [joinCopy, setJoinCopy] = useState("join");
+    const [hasClicked, setHasClicked] = useState(false)
 
     const handleJoin = () => {
         if (canLogIn) {
+            setHasClicked(true);
             joinRoom(room, username);
             setJoinCopy("Please wait...");
         }
@@ -48,7 +50,7 @@ function Login({ joinRoom, enterError }:{ joinRoom: Function, enterError: string
             />
             <button
                 className="mt-4 px-1 py-2 bg-blue-500 text-white rounded-md cursor-pointer disabled:bg-gray-500 disabled:cursor-not-allowed"
-                disabled={!canLogIn}
+                disabled={!canLogIn || hasClicked}
                 onClick={handleJoin}>{joinCopy}</button>
             <div className="text-red-500 font-bold">{enterError}</div>
         </div>
