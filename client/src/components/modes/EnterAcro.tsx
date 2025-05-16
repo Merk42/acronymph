@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { FormEvent, useMemo, useRef, useState } from "react";
 
 function EnterAcro({acronym, onAcroEntered}:{acronym:string[]; onAcroEntered: Function}) {
     const [isEntered, setIsEntered] = useState(false);
@@ -24,7 +24,8 @@ function EnterAcro({acronym, onAcroEntered}:{acronym:string[]; onAcroEntered: Fu
         return phrase.split(' ');
     }, [phrase])
 
-    const handleClick = () => {
+    const handleSubmit = (e:FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
         if (isValid) {
             setIsEntered(true);
             onAcroEntered(phrase.trim())
@@ -37,7 +38,7 @@ function EnterAcro({acronym, onAcroEntered}:{acronym:string[]; onAcroEntered: Fu
             {acronym.join("")}
             </p>
             { isEntered === false && 
-                <form className="max-w-xl m-auto flex mt-16">
+                <form className="max-w-xl m-auto flex mt-16" onSubmit={handleSubmit}>
                     <input
                         className="rounded-tl-lg rounded-bl-lg sm:text-2xl outline-1 -outline-offset-1 outline-gray-300 block min-w-0 grow py-1.5 px-3 text-gray-900 dark:text-white placeholder:text-gray-400"
                         type="text"
@@ -47,7 +48,7 @@ function EnterAcro({acronym, onAcroEntered}:{acronym:string[]; onAcroEntered: Fu
                     <button
                         className="px-4 py-8 bg-blue-500 text-white rounded-tr-lg rounded-br-lg cursor-pointer disabled:bg-gray-500 disabled:cursor-not-allowed"
                         disabled={!isValid}
-                        onClick={handleClick}>submit</button>
+                        type="submit">submit</button>
                 </form>
             }
             { isEntered === true && 
