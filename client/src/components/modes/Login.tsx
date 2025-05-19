@@ -2,7 +2,7 @@ import { FormEvent, useMemo, useState } from "react"
 
 function Login({ joinRoom, enterError }:{ joinRoom: Function, enterError: string}) {
     const [username, setUsername] = useState("");
-    const [room, setRoom] = useState("myRoom");
+    const [room, setRoom] = useState("general");
     const [joinCopy, setJoinCopy] = useState("join");
     const [hasClicked, setHasClicked] = useState(false)
 
@@ -38,18 +38,18 @@ function Login({ joinRoom, enterError }:{ joinRoom: Function, enterError: string
                     }}
                 />
                 <label
-                    className="hidden block text-sm/6 font-medium text-gray-900 dark:text-white mt-4"
+                    className="block text-sm/6 font-medium text-gray-900 dark:text-white mt-4"
                     htmlFor="room">room</label>
-                <input
+                <select
                     className="outline-1 outline-gray-300 block min-w-0 grow py-1.5 pr-3 pl-1 text-base text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-blue-500"
                     id="room"
-                    type="hidden"
-                    placeholder="room"
                     value={room}
                     onChange={(event) => {
                         setRoom(event.target.value)
-                    }}
-                />
+                    }}>
+                    <option value='general'>no categories</option>
+                    <option value='categories'>categories</option>
+                </select>
                 <button
                     className="mt-4 px-1 py-2 bg-blue-500 text-white rounded-md cursor-pointer disabled:bg-gray-500 disabled:cursor-not-allowed"
                     disabled={!canLogIn || hasClicked}>{joinCopy}</button>

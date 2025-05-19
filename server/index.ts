@@ -25,6 +25,7 @@ const io = new Server(server, {
 const TIMES_TO_ENTER = [30000, 30000, 30000, 40000, 40000, 30000, 30000, 30000, 40000, 40000]
 const TIME_TO_VOTE = 20000;
 const TIME_TO_VIEW = 10000;
+const TIME_TO_CATEGORY = 15000;
 const TIME_TO_CELEBRATE = 15000;
 const MAX_ROUNDS = 10;
 
@@ -54,7 +55,9 @@ interface Room {
   currentAcronym: Acronym,
   currentRound: number,
   currentEntries: CurrentEntry[],
-  currentVotes: CurrentVotes
+  currentVotes: CurrentVotes,
+  currentCategory: string;
+  hasCategories: boolean;
 }
 
 interface Player {
@@ -132,6 +135,7 @@ const rooms:Rooms = {};
 
 io.on("connection", (socket:Socket) => {
   socket.on("joinRoom", (room:string, name:string) => {
+    console.log('room', room)
     if (!rooms[room]) {
       rooms[room] = {
         players: [],
@@ -139,7 +143,9 @@ io.on("connection", (socket:Socket) => {
         currentAcronym: [],
         currentRound: 0,
         currentEntries: [],
-        currentVotes: {}
+        currentVotes: {},
+        currentCategory: "",
+        hasCategories: room === 'categories' ? true : false
       };
     }
     if (rooms[room].players.filter((player:Player) => player.name === name).length > 0) {
@@ -185,8 +191,32 @@ io.on("connection", (socket:Socket) => {
     rooms[room].currentVotes[userid] = acroid;
   })
 
-
+  socket.on("category", (room:string, category:string) => {
+    console.log('be category', category)
+    rooms[room].currentCategory = category;
+  })
 })
+
+function category(room:string, winner:Player) {
+  rooms[room].currentCategory = '';
+  io.to(room).except(winner.id).emit("choosingCategory", {
+    winner: winner.name,
+    timer: TIME_TO_CATEGORY,
+    round: rooms[room].currentRound
+  });
+  io.to(winner.id).emit("chooseCategory", {
+    categories: ["general", "food & drink", "movies & tv"],
+    timer: TIME_TO_CATEGORY,
+    round: rooms[room].currentRound
+  });
+
+  clearTimeout(rooms[room].modeTimeout);
+  // TODO find winner of round, and pass their ID and Name to new 'category' mode
+  rooms[room].modeTimeout = setTimeout(() => {
+    console.log("next category being chosen!");
+    sendNewAcronym(room);
+  }, TIME_TO_CATEGORY);
+}
 
 function sendNewAcronym(room:string) {
   if (rooms[room].players.length === 0) {
@@ -213,7 +243,8 @@ function sendNewAcronym(room:string) {
   io.to(room).emit("newAcronym", {
     acronym: ACRO,
     timer: TIME_TO_ENTER,
-    round: rooms[room].currentRound
+    round: rooms[room].currentRound,
+    ...(rooms[room].currentCategory && { category: rooms[room].currentCategory })
   });
   clearTimeout(rooms[room].modeTimeout);
   rooms[room].modeTimeout = setTimeout(() => {
@@ -224,7 +255,7 @@ function sendNewAcronym(room:string) {
 }
 
 function voteOnAcroym(room:string) {
-  io.to(room).emit("voteOnAcronym", {      
+  io.to(room).emit("voteOnAcronym", {
     entries: rooms[room].currentEntries,
     timer: TIME_TO_VOTE,
     round: rooms[room].currentRound
@@ -238,6 +269,7 @@ function voteOnAcroym(room:string) {
 
 function resultsOfAcronym(room:string) {
   const votesPerId = countValues(rooms[room].currentVotes);
+  const winner = roundWinner(rooms[room].currentEntries, rooms[room].players, votesPerId);
   const updatedPlayersAndScore = updateScore(rooms[room].players, votesPerId);
   // TODO maybe update players on next phase?
   rooms[room].players = updatedPlayersAndScore;
@@ -248,9 +280,15 @@ function resultsOfAcronym(room:string) {
     round: rooms[room].currentRound
   });
   clearTimeout(rooms[room].modeTimeout);
+  // TODO find winner of round, and pass their ID and Name to new 'category' mode
   rooms[room].modeTimeout = setTimeout(() => {
-    console.log("times up, next acro coming up!");
-    sendNewAcronym(room);
+    if (rooms[room].hasCategories) {
+      console.log('category gets chosen');
+      category(room, winner);
+    } else {
+      console.log("times up, next acro coming up!");
+      sendNewAcronym(room);
+    }
   }, TIME_TO_VIEW);
 }
 
@@ -317,6 +355,38 @@ function updateScore(players:Player[], votecount:ValueCounts) {
     }
   }
   return updatedplayers
+}
+
+function roundWinner(entries:CurrentEntry[], players:Player[], votecount: ValueCounts):Player {
+  if (players.length === 1 || Object.keys(votecount).length === 0) {
+    return players[0];
+  }
+  // TODO what if tie?
+  function findKeyWithHighestValue(object: ValueCounts) {
+    let highestValue = -Infinity;
+    let keyWithHighestValue = null;
+
+    for (const key in object) {
+      if (object.hasOwnProperty(key) && typeof object[key] === 'number') {
+        if (object[key] > highestValue) {
+          highestValue = object[key];
+          keyWithHighestValue = key;
+        }
+      }
+    }
+    return keyWithHighestValue;
+  }
+  const winnerID = findKeyWithHighestValue(votecount);
+  return players.find(player => player.id === winnerID) || {id:'x',name:'x', score:-1}
+
+  /*
+entries [
+  { id: 'wfEs8MRIPXAbVmT9AAAD', acro: 'please call a cab' },
+  { id: '8OEBCPM3BF07S0cyAAAF', acro: "people can't actually cry" },
+  { id: '_dPsn1gNnAwqTbJFAAAB', acro: 'Paul caused a crash' }
+]
+vote count { wfEs8MRIPXAbVmT9AAAD: 2, _dPsn1gNnAwqTbJFAAAB: 1 }
+  */
 }
 
 function pointsToAcros(acros:CurrentEntry[], votecount:ValueCounts) {

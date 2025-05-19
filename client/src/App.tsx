@@ -15,13 +15,15 @@ import RoundDisplay from './components/RoundDisplay';
 
 import { Player } from './types/Player';
 import { EnteredAcro, VotedAcro } from './types/Entry';
-import { NewAcronymData, VoteOnAcronymData, ResultsOfAcronymData, GameoverData } from './types/SocketEvent';
+import { NewAcronymData, VoteOnAcronymData, ResultsOfAcronymData, GameoverData, ChoosingCategoryData, ChooseCategoryData } from './types/SocketEvent';
+import ChoosingCategory from './components/modes/ChoosingCategory';
+import ChooseCategory from './components/modes/ChooseCategory';
 // import { PLACEHOLDER_ACRONYM, PLACEHOLDER_ENTRIES, PLACEHOLDER_ID, PLACEHOLDER_PLAYERS } from './placeholders';
 
 const socket = io("https://acronymph.onrender.com/");
 // const socket = io("localhost:3001");
 
-type MODE = '' | 'wait' | 'enter' | 'vote' | 'results' | 'gameover';
+type MODE = '' | 'wait' | 'enter' | 'vote' | 'results' | 'choosingcategory' | 'choosecategory' | 'gameover';
 
 function App() {
 
@@ -36,6 +38,8 @@ function App() {
   const [votedAcronyms, setVotedAcronyms] =  useState<VotedAcro[]>([]);
   const [timer, setTimer] = useState<number>(0);
   const [players, setPlayers] = useState<Player[]>([]);
+  const [categories, setCategory] = useState<string[]>([]);
+  const [currentCategory, setCurrentCategory] = useState<string>("");
   const [winner, setWinner] = useState<string>('');
   const [isTieGame, setIsTieGame] = useState<boolean>(false);
 
@@ -45,7 +49,10 @@ function App() {
     socket.on('newAcronym', (data:NewAcronymData) => {
       setCurrentacro(data.acronym);
       setRoundNumber(data.round);
-      setTimer(data.timer); 
+      setTimer(data.timer);
+      if (data.category) {
+        setCurrentCategory(data.category);
+      } 
       setRoundMode('enter');
     });
 
@@ -62,7 +69,23 @@ function App() {
       setRoundNumber(data.round);
       setTimer(data.timer);
       setRoundMode('results')
-    })
+    });
+
+    socket.on('choosingCategory', (data:ChoosingCategoryData) => {
+      setWinner(data.winner);
+      setCurrentCategory("");
+      setRoundNumber(data.round);
+      setTimer(data.timer);
+      setRoundMode('choosingcategory')
+    });
+
+    socket.on('chooseCategory', (data:ChooseCategoryData) => {
+      setCategory(data.categories);
+      setCurrentCategory("");
+      setRoundNumber(data.round);
+      setTimer(data.timer);
+      setRoundMode('choosecategory')
+    });
 
     socket.on('gameover', (data:GameoverData) => {
       setWinner(data.winner)
@@ -117,6 +140,11 @@ function App() {
     socket.emit('voted', room, id, userID)
   }
 
+  function categoryChosen(category:string) {
+    console.log('fe categorychosen')
+    socket.emit('category', room, category);
+  }
+
   /*
   function demoMode(mode:MODE) {
     setUserID(PLACEHOLDER_ID);
@@ -156,7 +184,7 @@ function App() {
         <main className='p-4'>
           { roundNumber > 0 &&
             <div className='flex items-center mb-8'>
-              <RoundDisplay round={roundNumber} mode={roundMode}/>
+              <RoundDisplay round={roundNumber} category={currentCategory}/>
               <Countdown timer={timer}/>
             </div>
           }
@@ -171,6 +199,10 @@ function App() {
                 return <Results acros={votedAcronyms} id={userID}/>
               case 'gameover':
                 return <GameOver winner={winner} tie={isTieGame}/>
+              case 'choosingcategory':
+                return <ChoosingCategory winner={winner}/>
+              case 'choosecategory':
+                return <ChooseCategory categories={categories} onCategory={categoryChosen}/>
               case 'wait':
                 return <PleaseWait/>
               default:
