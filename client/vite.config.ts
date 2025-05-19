@@ -14,7 +14,7 @@ export default defineConfig({
       manifest:{
         name:"Acronymph",
         short_name:"Acronymph",
-        description:"Acronym game like Acrophobia",
+        description:"Acronym game like Acrophobia. Play online with friends to construct backronyms from random letters.",
         icons:[{
           src: '/android-chrome-192x192.png',
           sizes:'192x192',
@@ -39,13 +39,55 @@ export default defineConfig({
           type:'image/png',
           purpose:'any maskable',
         }
-      ],
-      theme_color:'#2b7fff',
-      background_color:'#fff',
-      display:"standalone",
-      scope:'/',
-      start_url:"/",
-      orientation:'portrait'
+        ],
+        screenshots: [{
+          src: "/wide-enter.png",
+          sizes: "1854x1070",
+          type: "image/png",
+          form_factor: "wide",
+          label: "Enter your acronym"
+        },
+        {
+          src: "/narrow-enter.png",
+          sizes: "412x915",
+          type: "image/png",
+          form_factor: "narrow",
+          label: "Enter your acronym"
+        },
+        {
+          src: "/wide-vote.png",
+          sizes: "1854x1070",
+          type: "image/png",
+          form_factor: "wide",
+          label: "Vote for your favorite"
+        },
+        {
+          src: "/narrow-vote.png",
+          sizes: "412x915",
+          type: "image/png",
+          form_factor: "narrow",
+          label: "Vote for your favorite"
+        },
+        {
+          src: "/wide-results.png",
+          sizes: "1854x1070",
+          type: "image/png",
+          form_factor: "wide",
+          label: "Earn points"
+        },
+        {
+          src: "/narrow-results.png",
+          sizes: "412x915",
+          type: "image/png",
+          form_factor: "narrow",
+          label: "Earn points"
+        }],
+        theme_color:'#2b7fff',
+        background_color:'#fff',
+        display:"standalone",
+        scope:'/',
+        start_url:"/",
+        orientation:'portrait'
       }
     }) 
   ],
