@@ -22,6 +22,12 @@ export default defineConfig({
           purpose:'any maskable'
         },
         {
+          src: '/android-chrome-384x384.png',
+          sizes:'384x384',
+          type:'image/png',
+          purpose:'any maskable'
+        },
+        {
           src:'/android-chrome-512x512.png',
           sizes:'512x512',
           type:'image/png',
@@ -29,15 +35,9 @@ export default defineConfig({
         },
         {
           src: '/apple-touch-icon.png',
-          sizes:'180x180',
+          sizes:'192x192',
           type:'image/png',
           purpose:'any',
-        },
-        {
-          src: '/maskable_icon.png',
-          sizes:'512x512',
-          type:'image/png',
-          purpose:'any maskable',
         }
         ],
         screenshots: [{
