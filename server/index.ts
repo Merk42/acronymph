@@ -29,6 +29,14 @@ const TIME_TO_CATEGORY = 15000;
 const TIME_TO_CELEBRATE = 15000;
 const MAX_ROUNDS = 10;
 
+const CATEGORY_OPTIONS = [
+  "general",
+  "food & drink",
+  "movies & tv",
+  "sci-fi",
+  "sports"
+]
+
 type Acronym = string[];
 
 interface Rooms {
@@ -205,7 +213,7 @@ function category(room:string, winner:Player) {
     round: rooms[room].currentRound
   });
   io.to(winner.id).emit("chooseCategory", {
-    categories: ["general", "food & drink", "movies & tv"],
+    categories: categoryOptions(CATEGORY_OPTIONS, 3),
     timer: TIME_TO_CATEGORY,
     round: rooms[room].currentRound
   });
@@ -378,15 +386,6 @@ function roundWinner(entries:CurrentEntry[], players:Player[], votecount: ValueC
   }
   const winnerID = findKeyWithHighestValue(votecount);
   return players.find(player => player.id === winnerID) || {id:'x',name:'x', score:-1}
-
-  /*
-entries [
-  { id: 'wfEs8MRIPXAbVmT9AAAD', acro: 'please call a cab' },
-  { id: '8OEBCPM3BF07S0cyAAAF', acro: "people can't actually cry" },
-  { id: '_dPsn1gNnAwqTbJFAAAB', acro: 'Paul caused a crash' }
-]
-vote count { wfEs8MRIPXAbVmT9AAAD: 2, _dPsn1gNnAwqTbJFAAAB: 1 }
-  */
 }
 
 function pointsToAcros(acros:CurrentEntry[], votecount:ValueCounts) {
@@ -403,7 +402,23 @@ function pointsToAcros(acros:CurrentEntry[], votecount:ValueCounts) {
   return updatedacros;
 }
 
-
+function categoryOptions(array:string[], length:number):string[] {
+  if (array.length <= length) {
+    return array
+  }
+  let unused = array;
+  let used:string[] = [array.shift() || 'general'];
+  for (let i = 1; i < length; i++) {
+    const IND = Math.floor(Math.random() * unused.length);
+    const val = unused.splice(IND, 1);
+    used.push(val[0]);
+  }
+  for (let i = used.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [used[i], used[j]] = [used[j], used[i]];
+  }
+  return used;
+}
 
 server.listen(3001, () => {
     console.log('server running...')
