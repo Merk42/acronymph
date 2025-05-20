@@ -209,7 +209,7 @@ io.on("connection", (socket:Socket) => {
   })
 })
 
-function category(room:string, winner:Player) {
+function choosingCategory(room:string, winner:Player) {
   rooms[room].currentCategory = CATEGORY_POOL[0];
   io.to(room).except(winner.id).emit("choosingCategory", {
     winner: winner.name,
@@ -295,7 +295,7 @@ function resultsOfAcronym(room:string) {
     }
     if (rooms[room].hasCategories) {
       console.log('category gets chosen');
-      category(room, winner);
+      choosingCategory(room, winner);
     } else {
       console.log("times up, next acro coming up!");
       sendNewAcronym(room);
