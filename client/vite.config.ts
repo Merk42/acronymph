@@ -42,7 +42,7 @@ export default defineConfig({
         ],
         screenshots: [{
           src: "/wide-enter.png",
-          sizes: "1854x1070",
+          sizes: "1024x768",
           type: "image/png",
           form_factor: "wide",
           label: "Enter your acronym"
@@ -56,7 +56,7 @@ export default defineConfig({
         },
         {
           src: "/wide-vote.png",
-          sizes: "1854x1070",
+          sizes: "1024x768",
           type: "image/png",
           form_factor: "wide",
           label: "Vote for your favorite"
@@ -70,7 +70,7 @@ export default defineConfig({
         },
         {
           src: "/wide-results.png",
-          sizes: "1854x1070",
+          sizes: "1024x768",
           type: "image/png",
           form_factor: "wide",
           label: "Earn points"

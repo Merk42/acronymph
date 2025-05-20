@@ -152,17 +152,16 @@ function App() {
     setPlayers(PLACEHOLDER_PLAYERS);
     setRoundNumber(5);
     switch (mode) {
-      case 'wait':
-        
+      case 'wait':       
         break;
       case 'enter':
         setCurrentacro(PLACEHOLDER_ACRONYM);
         break;
       case 'vote':
-        setVotedAcronyms(PLACEHOLDER_ENTRIES);
+        setEnteredAcronyms(PLACEHOLDER_ENTRIES);
         break;
       case 'results':
-        setEnteredAcronyms(PLACEHOLDER_ENTRIES);
+        setVotedAcronyms(PLACEHOLDER_ENTRIES);
         break;
       case 'gameover':
         setWinner(PLACEHOLDER_PLAYERS[10].name)
