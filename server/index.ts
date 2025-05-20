@@ -29,7 +29,7 @@ const TIME_TO_CATEGORY = 15000;
 const TIME_TO_CELEBRATE = 15000;
 const MAX_ROUNDS = 10;
 
-const CATEGORY_OPTIONS = [
+const CATEGORY_POOL = [
   "general",
   "food & drink",
   "movies & tv",
@@ -156,7 +156,7 @@ io.on("connection", (socket:Socket) => {
         currentRound: 0,
         currentEntries: [],
         currentVotes: {},
-        currentCategory: "",
+        currentCategory: CATEGORY_POOL[0],
         hasCategories: room === 'categories' ? true : false
       };
     }
@@ -210,14 +210,14 @@ io.on("connection", (socket:Socket) => {
 })
 
 function category(room:string, winner:Player) {
-  rooms[room].currentCategory = '';
+  rooms[room].currentCategory = CATEGORY_POOL[0];
   io.to(room).except(winner.id).emit("choosingCategory", {
     winner: winner.name,
     timer: TIME_TO_CATEGORY,
     round: rooms[room].currentRound
   });
   io.to(winner.id).emit("chooseCategory", {
-    categories: categoryOptions(CATEGORY_OPTIONS, 4),
+    categories: categoryOptions(CATEGORY_POOL, 4),
     timer: TIME_TO_CATEGORY,
     round: rooms[room].currentRound
   });
@@ -236,13 +236,6 @@ function sendNewAcronym(room:string) {
     delete rooms[room];
     return;
   }
-
-  // game over? lightning?
-  if (rooms[room].currentRound === MAX_ROUNDS) {
-    console.log("GG!!");
-    gameOver(room)
-    return;
-  }
     
   rooms[room].currentRound++;
   const ACROLENGTH = acroLengthFromRound(rooms[room].currentRound);
@@ -256,7 +249,7 @@ function sendNewAcronym(room:string) {
     acronym: ACRO,
     timer: TIME_TO_ENTER,
     round: rooms[room].currentRound,
-    ...(rooms[room].currentCategory && { category: rooms[room].currentCategory })
+    ...(rooms[room].hasCategories && { category: rooms[room].currentCategory })
   });
   clearTimeout(rooms[room].modeTimeout);
   rooms[room].modeTimeout = setTimeout(() => {
@@ -294,6 +287,12 @@ function resultsOfAcronym(room:string) {
   clearTimeout(rooms[room].modeTimeout);
   // TODO find winner of round, and pass their ID and Name to new 'category' mode
   rooms[room].modeTimeout = setTimeout(() => {
+    // game over? lightning?
+    if (rooms[room].currentRound === MAX_ROUNDS) {
+      console.log("GG!!");
+      gameOver(room)
+      return;
+    }
     if (rooms[room].hasCategories) {
       console.log('category gets chosen');
       category(room, winner);
@@ -340,6 +339,9 @@ function startNewGame(room:string) {
   rooms[room].players = RESET_PLAYERS;
   io.to(room).emit("players_updated", rooms[room].players);
   rooms[room].currentRound = 0;
+if (rooms[room].hasCategories) {
+    rooms[room].currentCategory = CATEGORY_POOL[0];
+  }
   sendNewAcronym(room);
 }
 
