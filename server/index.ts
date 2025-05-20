@@ -34,7 +34,11 @@ const CATEGORY_OPTIONS = [
   "food & drink",
   "movies & tv",
   "sci-fi",
-  "sports"
+  "sports",
+  "animals",
+  "vacation",
+  "horror",
+  "history"
 ]
 
 type Acronym = string[];
@@ -213,7 +217,7 @@ function category(room:string, winner:Player) {
     round: rooms[room].currentRound
   });
   io.to(winner.id).emit("chooseCategory", {
-    categories: categoryOptions(CATEGORY_OPTIONS, 3),
+    categories: categoryOptions(CATEGORY_OPTIONS, 4),
     timer: TIME_TO_CATEGORY,
     round: rooms[room].currentRound
   });
@@ -403,11 +407,12 @@ function pointsToAcros(acros:CurrentEntry[], votecount:ValueCounts) {
 }
 
 function categoryOptions(array:string[], length:number):string[] {
-  if (array.length <= length) {
+  if (array.length <= length || array.length < 1) {
     return array
   }
-  let unused = array;
-  let used:string[] = [array.shift() || 'general'];
+  let unused = [...array];
+  const GENERAL = unused.shift() || '';
+  let used:string[] = [];
   for (let i = 1; i < length; i++) {
     const IND = Math.floor(Math.random() * unused.length);
     const val = unused.splice(IND, 1);
@@ -417,6 +422,7 @@ function categoryOptions(array:string[], length:number):string[] {
     const j = Math.floor(Math.random() * (i + 1));
     [used[i], used[j]] = [used[j], used[i]];
   }
+  used.unshift(GENERAL);
   return used;
 }
 
