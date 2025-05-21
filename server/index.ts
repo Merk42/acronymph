@@ -1,3 +1,7 @@
+import { Rooms, Player, Socket } from "./types";
+import { acronymForRound } from "./modes/enterAcro";
+import { countValues, roundWinner, updateScore, pointsToAcros } from "./modes/results";
+import { categoryOptions } from "./modes/category";
 const express = require('express');
 const app = express();
 const http = require('http');
@@ -40,108 +44,6 @@ const CATEGORY_POOL = [
   "horror",
   "history"
 ]
-
-type Acronym = string[];
-
-interface Rooms {
-  [key: string]: Room;
-}
-
-interface CurrentEntry {
-  id: string;
-  acro: string;
-  votes?: number;
-}
-
-interface CurrentVotes {
-  [key: string]: string;
-}
-
-interface ValueCounts {
-  [key: string]: number;
-}
-
-interface Room {
-  players: Player[],
-  modeTimeout: any,
-  currentAcronym: Acronym,
-  currentRound: number,
-  currentEntries: CurrentEntry[],
-  currentVotes: CurrentVotes,
-  currentCategory: string;
-  hasCategories: boolean;
-}
-
-interface Player {
-  name: string;
-  id: string;
-  score: number;
-}
-
-interface Socket {
-  on: Function;
-  id: string;
-  join: Function;
-}
-
-
-function acroLengthFromRound(round:number):number{
-  const NEWLENGTH = ((round-1) % 5) + 3;
-  return NEWLENGTH;
-}
-
-function getRandomLetter():string {
-  /*
-  const alphabet = "abcdefghijklmnopqrstuvwxyz";
-  const randomIndex = Math.floor(Math.random() * alphabet.length);
-  return alphabet[randomIndex];
-  */
-  /* WEIGHTED BY FREQUENCY OF STARTING A WORD IN ENGLISH */
-  const ALPHABET = 'abcdefghijklmnopqrstuvwxyz';
-  const ALPHA_ARRAY = ALPHABET.split("");
-  const WEIGHTS = [570, 60, 940, 610, 390, 410, 330, 370, 390, 110, 100, 310, 560, 220, 250, 770, 49, 600, 1100, 500, 290, 150, 270, 5, 36, 24]
-  const cumulativeWeights:number[] = [];
-  let sum = 0;
-  for (let i = 0; i < WEIGHTS.length; i++) {
-    sum += WEIGHTS[i];
-    cumulativeWeights.push(sum);
-  }
-
-  const randomNumber = Math.random() * sum;
-
-  for (let i = 0; i < cumulativeWeights.length; i++) {
-    if (randomNumber < cumulativeWeights[i]) {
-      return ALPHA_ARRAY[i];
-    }
-  }
-  return ALPHA_ARRAY[0]
-}
-  
-function generateAcro(length = 3):Acronym {
-  const ACRO:Acronym = [];
-  for (let i = 0; i < length; i++) {
-    ACRO.push(getRandomLetter())
-  }
-  if (isBadAcro(ACRO)) {
-    return generateAcro(length);
-  }
-  return ACRO
-}
-
-function stringHashCode(str:string):number {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash << 5) - hash + str.charCodeAt(i);
-    hash |= 0; // Convert to 32bit integer
-  }
-  return hash;
-}
-
-function isBadAcro(acro:string[]):boolean {
-  const DISALLOWED = [96897, 106251, 3065272, 93747762, -1045620280];
-  const HASHED = stringHashCode(acro.join(""));
-  return DISALLOWED.includes(HASHED)
-}
 
 const rooms:Rooms = {};
 
@@ -214,96 +116,95 @@ io.on("connection", (socket:Socket) => {
   })
 })
 
-function choosingCategory(room:string, winner:Player) {
-  rooms[room].currentCategory = CATEGORY_POOL[0];
-  io.to(room).except(winner.id).emit("choosingCategory", {
+function choosingCategory(roomName:string, winner:Player) {
+  rooms[roomName].currentCategory = CATEGORY_POOL[0];
+  io.to(roomName).except(winner.id).emit("choosingCategory", {
     winner: winner.name,
     timer: TIME_TO_CATEGORY,
-    round: rooms[room].currentRound
+    round: rooms[roomName].currentRound
   });
   io.to(winner.id).emit("chooseCategory", {
     categories: categoryOptions(CATEGORY_POOL, 4),
     timer: TIME_TO_CATEGORY,
-    round: rooms[room].currentRound
+    round: rooms[roomName].currentRound
   });
 
-  clearTimeout(rooms[room].modeTimeout);
+  clearTimeout(rooms[roomName].modeTimeout);
   // TODO find winner of round, and pass their ID and Name to new 'category' mode
-  rooms[room].modeTimeout = setTimeout(() => {
+  rooms[roomName].modeTimeout = setTimeout(() => {
     console.log("next category being chosen!");
-    sendNewAcronym(room);
+    sendNewAcronym(roomName);
   }, TIME_TO_CATEGORY);
 }
 
-function sendNewAcronym(room:string) {   
-  rooms[room].currentRound++;
-  const ACROLENGTH = acroLengthFromRound(rooms[room].currentRound);
-  const ACRO = generateAcro(ACROLENGTH);
-  rooms[room].currentAcronym = ACRO;
+function sendNewAcronym(roomName:string) {   
+  rooms[roomName].currentRound++;
+  const ACRO = acronymForRound(rooms[roomName].currentRound);
+  rooms[roomName].currentAcronym = ACRO;
 
-  rooms[room].currentEntries = [];
-  rooms[room].currentVotes = {};
-  const TIME_TO_ENTER = TIMES_TO_ENTER[rooms[room].currentRound-1];
-  io.to(room).emit("newAcronym", {
+  rooms[roomName].currentEntries = [];
+  rooms[roomName].currentVotes = {};
+  const TIME_TO_ENTER = TIMES_TO_ENTER[rooms[roomName].currentRound-1];
+  io.to(roomName).emit("newAcronym", {
     acronym: ACRO,
     timer: TIME_TO_ENTER,
-    round: rooms[room].currentRound,
-    ...(rooms[room].hasCategories && { category: rooms[room].currentCategory })
+    round: rooms[roomName].currentRound,
+    ...(rooms[roomName].hasCategories && { category: rooms[roomName].currentCategory })
   });
-  clearTimeout(rooms[room].modeTimeout);
-  rooms[room].modeTimeout = setTimeout(() => {
+  clearTimeout(rooms[roomName].modeTimeout);
+  rooms[roomName].modeTimeout = setTimeout(() => {
     console.log("times up, now vote!")
-    voteOnAcroym(room);
+    voteOnAcroym(roomName);
   }, TIME_TO_ENTER);
   
 }
 
-function voteOnAcroym(room:string) {
-  io.to(room).emit("voteOnAcronym", {
-    entries: rooms[room].currentEntries,
+function voteOnAcroym(roomName:string) {
+  io.to(roomName).emit("voteOnAcronym", {
+    entries: rooms[roomName].currentEntries,
     timer: TIME_TO_VOTE,
-    round: rooms[room].currentRound
+    round: rooms[roomName].currentRound
   });
-  clearTimeout(rooms[room].modeTimeout);
-  rooms[room].modeTimeout = setTimeout(() => {
+  clearTimeout(rooms[roomName].modeTimeout);
+  rooms[roomName].modeTimeout = setTimeout(() => {
     console.log("times up, lets see who won!");
-    resultsOfAcronym(room);
+    resultsOfAcronym(roomName);
   }, TIME_TO_VOTE);
 }
 
-function resultsOfAcronym(room:string) {
-  const votesPerId = countValues(rooms[room].currentVotes);
-  const winner = roundWinner(rooms[room].currentEntries, rooms[room].players, votesPerId);
-  const updatedPlayersAndScore = updateScore(rooms[room].players, votesPerId);
+function resultsOfAcronym(roomName:string) {
+  const votesPerId = countValues(rooms[roomName].currentVotes);
+  const winner = roundWinner(rooms[roomName].currentEntries, rooms[roomName].players, votesPerId);
+  const updatedPlayersAndScore = updateScore(rooms[roomName].players, votesPerId);
   // TODO maybe update players on next phase?
-  rooms[room].players = updatedPlayersAndScore;
-  io.to(room).emit("resultsOfAcronym", {
-    players: rooms[room].players,
-    entries: pointsToAcros(rooms[room].currentEntries, votesPerId),
+  rooms[roomName].players = updatedPlayersAndScore;
+  io.to(roomName).emit("resultsOfAcronym", {
+    players: rooms[roomName].players,
+    entries: pointsToAcros(rooms[roomName].currentEntries, votesPerId),
     timer: TIME_TO_VIEW,
-    round: rooms[room].currentRound
+    round: rooms[roomName].currentRound
   });
-  clearTimeout(rooms[room].modeTimeout);
+  clearTimeout(rooms[roomName].modeTimeout);
   // TODO find winner of round, and pass their ID and Name to new 'category' mode
-  rooms[room].modeTimeout = setTimeout(() => {
+  rooms[roomName].modeTimeout = setTimeout(() => {
     // game over? lightning?
-    if (rooms[room].currentRound === MAX_ROUNDS) {
+    if (rooms[roomName].currentRound === MAX_ROUNDS) {
       console.log("GG!!");
-      gameOver(room)
+      gameOver(roomName)
       return;
     }
-    if (rooms[room].hasCategories) {
+    if (rooms[roomName].hasCategories) {
       console.log('category gets chosen');
-      choosingCategory(room, winner);
+      choosingCategory(roomName, winner);
     } else {
       console.log("times up, next acro coming up!");
-      sendNewAcronym(room);
+      sendNewAcronym(roomName);
     }
   }, TIME_TO_VIEW);
 }
 
-function gameOver(room:string) {
-  const SORTED = rooms[room].players.sort((a, b) => {
+function gameOver(roomName:string) {
+  const SORTED = rooms[roomName].players.sort((a, b) => {
     if (a.score < b.score) {
       return 1;
     }
@@ -313,118 +214,35 @@ function gameOver(room:string) {
     return 0;
   });
   if (SORTED.length > 1 && SORTED[0].score === SORTED[1].score) {
-    io.to(room).emit("gameover", {
+    io.to(roomName).emit("gameover", {
       winner: null,
       tie: true,
       timer: TIME_TO_CELEBRATE
     });
   } else {
-    io.to(room).emit("gameover", {
+    io.to(roomName).emit("gameover", {
       winner: SORTED[0].name,
       tie: false,
       timer: TIME_TO_CELEBRATE
     });
   }
-  rooms[room].modeTimeout = setTimeout(() => {
+  rooms[roomName].modeTimeout = setTimeout(() => {
     console.log("gg!!")
-    startNewGame(room);
+    startNewGame(roomName);
   }, TIME_TO_CELEBRATE);
 }
 
-function startNewGame(room:string) {
-  const RESET_PLAYERS = rooms[room].players.map(player => { 
+function startNewGame(roomName:string) {
+  const RESET_PLAYERS = rooms[roomName].players.map(player => { 
     return { ...player, score:0 };
   });
-  rooms[room].players = RESET_PLAYERS;
-  io.to(room).emit("players_updated", rooms[room].players);
-  rooms[room].currentRound = 0;
-if (rooms[room].hasCategories) {
-    rooms[room].currentCategory = CATEGORY_POOL[0];
+  rooms[roomName].players = RESET_PLAYERS;
+  io.to(roomName).emit("players_updated", rooms[roomName].players);
+  rooms[roomName].currentRound = 0;
+if (rooms[roomName].hasCategories) {
+    rooms[roomName].currentCategory = CATEGORY_POOL[0];
   }
-  sendNewAcronym(room);
-}
-
-function countValues(obj:CurrentVotes):ValueCounts {
-  const valueCounts:ValueCounts = {};
-
-  for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      const value = obj[key];
-      valueCounts[value] = (valueCounts[value] || 0) + 1;
-    }
-  }
-  return valueCounts;
-}
-
-function updateScore(players:Player[], votecount:ValueCounts) {
-  let updatedplayers = players;
-  for (const key in votecount) {
-    if (votecount.hasOwnProperty(key)) { // Check if the key is a direct property
-      const value = votecount[key];
-      const idToUpdate = updatedplayers.find(player => player.id === key);
-      if (idToUpdate) {
-        idToUpdate.score = idToUpdate.score + value;
-      }
-    }
-  }
-  return updatedplayers
-}
-
-function roundWinner(entries:CurrentEntry[], players:Player[], votecount: ValueCounts):Player {
-  if (players.length === 1 || Object.keys(votecount).length === 0) {
-    return players[0];
-  }
-  // TODO what if tie?
-  function findKeyWithHighestValue(object: ValueCounts) {
-    let highestValue = -Infinity;
-    let keyWithHighestValue = null;
-
-    for (const key in object) {
-      if (object.hasOwnProperty(key) && typeof object[key] === 'number') {
-        if (object[key] > highestValue) {
-          highestValue = object[key];
-          keyWithHighestValue = key;
-        }
-      }
-    }
-    return keyWithHighestValue;
-  }
-  const winnerID = findKeyWithHighestValue(votecount);
-  return players.find(player => player.id === winnerID) || {id:'x',name:'x', score:-1}
-}
-
-function pointsToAcros(acros:CurrentEntry[], votecount:ValueCounts) {
-  let updatedacros = acros;
-  for (const key in votecount) {
-    if (votecount.hasOwnProperty(key)) { // Check if the key is a direct property
-      const value = votecount[key];
-      const idToUpdate = updatedacros.find(acro => acro.id === key);
-      if (idToUpdate) {
-        idToUpdate.votes = value;
-      }
-    }
-  }
-  return updatedacros;
-}
-
-function categoryOptions(array:string[], length:number):string[] {
-  if (array.length <= length || array.length < 1) {
-    return array
-  }
-  let unused = [...array];
-  const GENERAL = unused.shift() || '';
-  let used:string[] = [];
-  for (let i = 1; i < length; i++) {
-    const IND = Math.floor(Math.random() * unused.length);
-    const val = unused.splice(IND, 1);
-    used.push(val[0]);
-  }
-  for (let i = used.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [used[i], used[j]] = [used[j], used[i]];
-  }
-  used.unshift(GENERAL);
-  return used;
+  sendNewAcronym(roomName);
 }
 
 server.listen(3001, () => {
