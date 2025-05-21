@@ -130,10 +130,10 @@ function App() {
     socket.emit('acroEntered', room, e)
   }
 
-  function joinRoom(room:string, username: string) {
-    setUserName(username);
-    setRoom(room);
-    socket.emit('joinRoom', room, username);
+  function joinRoom(roomName:string, userName: string) {
+    setUserName(userName);
+    setRoom(roomName);
+    socket.emit('joinRoom', roomName, userName);
   }
 
   function votedFor(id:string) {

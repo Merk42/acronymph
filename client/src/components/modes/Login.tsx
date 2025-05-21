@@ -1,8 +1,8 @@
 import { FormEvent, useMemo, useState } from "react"
 
 function Login({ joinRoom, enterError }:{ joinRoom: Function, enterError: string}) {
-    const [username, setUsername] = useState("");
-    const [room, setRoom] = useState("general");
+    const [userName, setUserName] = useState("");
+    const [roomName, setRoomName] = useState("general");
     const [joinCopy, setJoinCopy] = useState("join");
     const [hasClicked, setHasClicked] = useState(false)
 
@@ -10,14 +10,14 @@ function Login({ joinRoom, enterError }:{ joinRoom: Function, enterError: string
         e.preventDefault();
         if (canLogIn) {
             setHasClicked(true);
-            joinRoom(room, username);
+            joinRoom(roomName, userName);
             setJoinCopy("Please wait...");
         }
     }
 
     const canLogIn = useMemo<boolean>(() => {
-        return username !== "" && room !== ""
-    }, [username, room])
+        return userName !== "" && roomName !== ""
+    }, [userName, roomName])
 
 
     return (
@@ -32,9 +32,9 @@ function Login({ joinRoom, enterError }:{ joinRoom: Function, enterError: string
                     id="name"
                     type="text"
                     placeholder="cool name"
-                    value={username}
+                    value={userName}
                     onChange={(event) => {
-                        setUsername(event.target.value)
+                        setUserName(event.target.value)
                     }}
                 />
                 <label
@@ -43,9 +43,9 @@ function Login({ joinRoom, enterError }:{ joinRoom: Function, enterError: string
                 <select
                     className="outline-1 outline-gray-300 block min-w-0 grow py-1.5 pr-3 pl-1 text-base text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-blue-500"
                     id="room"
-                    value={room}
+                    value={roomName}
                     onChange={(event) => {
-                        setRoom(event.target.value)
+                        setRoomName(event.target.value)
                     }}>
                     <option value='general'>no categories</option>
                     <option value='categories'>categories</option>

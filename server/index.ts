@@ -146,10 +146,10 @@ function isBadAcro(acro:string[]):boolean {
 const rooms:Rooms = {};
 
 io.on("connection", (socket:Socket) => {
-  socket.on("joinRoom", (room:string, name:string) => {
-    console.log('room', room)
-    if (!rooms[room]) {
-      rooms[room] = {
+  socket.on("joinRoom", (roomName:string, userName:string) => {
+    console.log('room', roomName)
+    if (!rooms[roomName]) {
+      rooms[roomName] = {
         players: [],
         modeTimeout: null,
         currentAcronym: [],
@@ -157,55 +157,60 @@ io.on("connection", (socket:Socket) => {
         currentEntries: [],
         currentVotes: {},
         currentCategory: CATEGORY_POOL[0],
-        hasCategories: room === 'categories' ? true : false
+        hasCategories: roomName === 'categories' ? true : false
       };
     }
-    if (rooms[room].players.filter((player:Player) => player.name === name).length > 0) {
-      io.to(socket.id).emit("join_error", `A player with the username of ${name} already exists in ${room}`);
-    } else if (rooms[room].players.length >= 20) {
-      io.to(socket.id).emit("join_error", `The ${room} room is full`);
+    if (rooms[roomName].players.filter((player:Player) => player.name === userName).length > 0) {
+      io.to(socket.id).emit("join_error", `A player with the username of ${userName} already exists in ${roomName}`);
+    } else if (rooms[roomName].players.length >= 20) {
+      io.to(socket.id).emit("join_error", `The ${roomName} room is full`);
     } else {
-      console.log(name, 'has joined the game')
-      socket.join(room);
+      console.log(userName, 'has joined the game')
+      socket.join(roomName);
       console.log("User Joined", socket.id);
-      io.to(room).emit("enter_room", socket.id, name);
-      rooms[room].players.push({ 
+      io.to(roomName).emit("enter_room", socket.id, userName);
+      rooms[roomName].players.push({ 
         id: socket.id,
-        name: name,
+        name: userName,
         score: 0
       });
-      io.to(room).emit("players_updated", rooms[room].players);
-      if (rooms[room].players.length === 1) {
-        startNewGame(room);
+      io.to(roomName).emit("players_updated", rooms[roomName].players);
+      if (rooms[roomName].players.length === 1) {
+        startNewGame(roomName);
       }
-      if (rooms[room].players.length === 2) {
+      if (rooms[roomName].players.length === 2) {
         // A CHALLENGER APPEARS
-        clearTimeout(rooms[room].modeTimeout);
-        startNewGame(room);
+        clearTimeout(rooms[roomName].modeTimeout);
+        startNewGame(roomName);
       }
     }
     socket.on("disconnect", () => {
-      const PLAYERS_CONNECTED = rooms[room].players.filter(player => player.id !== socket.id);
-      rooms[room].players = PLAYERS_CONNECTED;
-      io.to(room).emit("players_updated", rooms[room].players);
+      const PLAYERS_CONNECTED = rooms[roomName].players.filter(player => player.id !== socket.id);
+      rooms[roomName].players = PLAYERS_CONNECTED;
+      io.to(roomName).emit("players_updated", rooms[roomName].players);
+      if (rooms[roomName].players.length === 0) {
+        clearTimeout(rooms[roomName].modeTimeout);
+        delete rooms[roomName];
+        return;
+      }
     })          
   });
 
-  socket.on("acroEntered", (room:string, acronym:string) => {
+  socket.on("acroEntered", (roomName:string, acronym:string) => {
     console.log(socket.id, 'entered', acronym)
-    rooms[room].currentEntries.push({
+    rooms[roomName].currentEntries.push({
       id: socket.id,
       acro: acronym
     });
   });
 
-  socket.on("voted", (room:string, acroid:string, userid:string) => {
-    rooms[room].currentVotes[userid] = acroid;
+  socket.on("voted", (roomName:string, acroid:string, userid:string) => {
+    rooms[roomName].currentVotes[userid] = acroid;
   })
 
-  socket.on("category", (room:string, category:string) => {
+  socket.on("category", (roomName:string, category:string) => {
     console.log('be category', category)
-    rooms[room].currentCategory = category;
+    rooms[roomName].currentCategory = category;
   })
 })
 
@@ -230,13 +235,7 @@ function choosingCategory(room:string, winner:Player) {
   }, TIME_TO_CATEGORY);
 }
 
-function sendNewAcronym(room:string) {
-  if (rooms[room].players.length === 0) {
-    clearTimeout(rooms[room].modeTimeout);
-    delete rooms[room];
-    return;
-  }
-    
+function sendNewAcronym(room:string) {   
   rooms[room].currentRound++;
   const ACROLENGTH = acroLengthFromRound(rooms[room].currentRound);
   const ACRO = generateAcro(ACROLENGTH);
