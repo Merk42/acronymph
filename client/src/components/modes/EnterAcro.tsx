@@ -1,9 +1,8 @@
-import { FormEvent, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 
 function EnterAcro({acronym, onAcroEntered}:{acronym:string[]; onAcroEntered: Function}) {
     const [isEntered, setIsEntered] = useState(false);
 
-    const inputRef = useRef(null);
     const [phrase, setPhrase] = useState('');
 
     const isValid = useMemo<boolean>(() => {
@@ -28,9 +27,14 @@ function EnterAcro({acronym, onAcroEntered}:{acronym:string[]; onAcroEntered: Fu
         e.preventDefault();
         if (isValid) {
             setIsEntered(true);
-            onAcroEntered(phrase.trim())
+            onAcroEntered(phrase.trim());
         }
     };
+
+    useEffect(() => {
+        setPhrase('');
+        setIsEntered(false);
+    }, [acronym]);
 
     return (
         <div>  
@@ -44,7 +48,7 @@ function EnterAcro({acronym, onAcroEntered}:{acronym:string[]; onAcroEntered: Fu
                         type="text"
                         value={phrase}
                         onChange={e => setPhrase(e.target.value)}
-                        ref={inputRef}/>
+                        />
                     <button
                         className="px-4 py-8 bg-blue-500 text-white rounded-tr-lg rounded-br-lg cursor-pointer disabled:bg-gray-500 disabled:cursor-not-allowed"
                         disabled={!isValid}
