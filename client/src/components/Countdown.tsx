@@ -9,8 +9,6 @@ function Countdown({ timer }: { timer: number }) {
       setTimeRemaining((prevTime:number) => {
         if (prevTime === 0) {
           clearInterval(timerInterval);
-          // Perform actions when the timer reaches zero
-          console.log('Countdown complete!');
           return 0;
         } else {
           return prevTime - 1000;
@@ -53,7 +51,7 @@ function Countdown({ timer }: { timer: number }) {
             style={{ transition: 'stroke-dashoffset 1s linear' }}
           />
         </svg>
-        <div className="absolute inset-0 flex items-center justify-center text-2xl font-bold">
+        <div className={`absolute inset-0 flex items-center justify-center font-bold ${timeRemaining < 100000 ? 'text-2xl' : 'text-1xl'}`}>
           {timeRemaining / 1000}
         </div>
       </div>
