@@ -27,6 +27,12 @@ export interface Room {
   currentVotes: CurrentVotes,
   currentCategory: string;
   hasCategories: boolean;
+  lightning: {
+    acronyms: Acronym[],
+    round: number,
+    entries: CurrentEntry[][]
+    votes: CurrentVotes[];
+  }
 }
 
 export interface Player {
