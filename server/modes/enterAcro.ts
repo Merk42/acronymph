@@ -32,7 +32,7 @@ function getRandomLetter():string {
   return ALPHA_ARRAY[0]
 }
   
-function generateAcro(length = 3):Acronym {
+export function generateAcro(length = 3):Acronym {
   const ACRO:Acronym = [];
   for (let i = 0; i < length; i++) {
     ACRO.push(getRandomLetter())
