@@ -50,7 +50,7 @@ export function updateScore(players:Player[], votecount:ValueCounts) {
 }
 
 export function pointsToAcros(acros:CurrentEntry[], votecount:ValueCounts) {
-  let updatedacros = acros;
+  let updatedacros:CurrentEntry[] = acros.map(player =>({id:player.id, acro:player.acro, votes:0}))
   for (const key in votecount) {
     if (votecount.hasOwnProperty(key)) { // Check if the key is a direct property
       const value = votecount[key];
