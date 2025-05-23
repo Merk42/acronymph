@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-function Countdown({ timer }: { timer: number }) {
+function Countdown({ timer, round }: { timer: number, round: number }) {
   const [timeRemaining, setTimeRemaining] = useState(timer);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ function Countdown({ timer }: { timer: number }) {
 
     // Cleanup the interval when the component unmounts
     return () => clearInterval(timerInterval);
-  }, [timer]); 
+  }, [timer, round]); 
 
   const radius = 20;
   const circumference = 2 * Math.PI * radius;

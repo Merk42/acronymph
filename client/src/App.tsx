@@ -131,6 +131,7 @@ function App() {
       // TODO maybe use msg?
       setWaitMessage(data.message);
       setRoundMode('wait');
+      setRoundNumber(data.round);
       setTimer(data.timer);
     })
   })
@@ -193,7 +194,7 @@ function App() {
           { roundNumber > 0 &&
             <div className='flex items-center mb-8'>
               <RoundDisplay round={roundNumber} category={currentCategory}/>
-              <Countdown timer={timer}/>
+              <Countdown timer={timer} round={roundNumber}/>
             </div>
           }
           <div className=''>
