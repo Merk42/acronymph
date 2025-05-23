@@ -44,6 +44,7 @@ function App() {
   const [isTieGame, setIsTieGame] = useState<boolean>(false);
 
   const [enterError, setEnterError] = useState<string>("");
+  const [waitMessage, setWaitMessage] = useState<string>("");
 
   useEffect(() => {
     socket.on('newAcronym', (data:NewAcronymData) => {
@@ -106,6 +107,7 @@ function App() {
     socket.on("enter_room", (id:string, name:string) => {
       if (name === userName) {
         setUserID(id);
+        setWaitMessage("Please wait while the current phase concludes")
         setRoundMode('wait');
         setEnterError("")
       }
@@ -127,6 +129,7 @@ function App() {
   useEffect(() => {
     socket.on("wait", (data) => {
       // TODO maybe use msg?
+      setWaitMessage(data.message);
       setRoundMode('wait');
       setTimer(data.timer);
     })
@@ -209,7 +212,7 @@ function App() {
               case 'choosecategory':
                 return <ChooseCategory categories={categories} onCategory={categoryChosen}/>
               case 'wait':
-                return <PleaseWait/>
+                return <PleaseWait message={waitMessage}/>
               default:
                 return <Login joinRoom={joinRoom} enterError={enterError}/>
             }

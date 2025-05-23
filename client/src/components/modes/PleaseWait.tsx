@@ -1,6 +1,6 @@
-function PleaseWait() {
+function PleaseWait({ message }:{ message: string}) {
     return (
-        <div className="text-xl">Please wait while the current phase concludes&hellip;</div>
+        <div className="text-xl">{message}</div>
     )
 }
 
