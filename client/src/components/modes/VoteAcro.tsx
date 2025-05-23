@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { EnteredAcro } from "../../types/Entry";
 
 interface VoteAcroProps {
@@ -8,8 +8,9 @@ interface VoteAcroProps {
 }
 
 function VoteAcro({ acros, onVoted, id }: VoteAcroProps) {
-
+    const [selectedValue, setSelectedValue] = useState<string>('');
     const voteFor = (entry:string) => {
+        setSelectedValue(entry);
         onVoted(entry);
     }
 
@@ -20,7 +21,11 @@ function VoteAcro({ acros, onVoted, id }: VoteAcroProps) {
             [array[i], array[j]] = [array[j], array[i]];
         }
         return array;
-    },[acros])
+    },[acros]);
+
+    useEffect(() => {
+        setSelectedValue('');
+    }, [acros]);
 
     if (shuffled.length) {
         return(
@@ -35,6 +40,7 @@ function VoteAcro({ acros, onVoted, id }: VoteAcroProps) {
                         id={entry.id}
                         value={entry.id}
                         disabled={entry.id === id}
+                        checked={selectedValue === entry.id}
                         onChange={() => {voteFor(entry.id)}}/>
                     <label
                         htmlFor={entry.id}
