@@ -112,8 +112,6 @@ function App() {
     })
   }, [userName])
 
-
-
   useEffect(() => {
     socket.on("players_updated", (players:Player[]) => {
       setPlayers(players)
@@ -125,6 +123,14 @@ function App() {
       setEnterError(error);
     })
   }, [])
+
+  useEffect(() => {
+    socket.on("wait", (data) => {
+      // TODO maybe use msg?
+      setRoundMode('wait');
+      setTimer(data.timer);
+    })
+  })
 
   function acroEntered(e:string) {
     socket.emit('acroEntered', room, e)
