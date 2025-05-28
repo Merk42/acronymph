@@ -34,7 +34,7 @@ const TIME_TO_CATEGORY = 15000;
 const TIME_TO_CELEBRATE = 15000;
 const MAX_ROUNDS = 10;
 const LIGHTNING_ROUNDS = 3;
-const TIME_FOR_LIGHTNING = 45000;
+const TIME_FOR_LIGHTNING = 30000;
 
 const CATEGORY_POOL = [
   "general",
@@ -233,7 +233,7 @@ function resultsOfAcronym(roomName:string) {
 
 function lightning(roomName: string) {
   const FINALISTS = finalists(rooms[roomName].players);
-  const ACROS = [generateAcro(5), generateAcro(6), generateAcro(7)];
+  const ACROS = [generateAcro(3), generateAcro(4), generateAcro(5)];
   rooms[roomName].lightning.acronyms = ACROS;
   rooms[roomName].currentRound = 100;
   io.to(roomName).except(FINALISTS[0].id).except(FINALISTS[1].id).emit("wait", {
