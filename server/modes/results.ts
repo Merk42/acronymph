@@ -29,7 +29,7 @@ export function updateScore(players:Player[], breakdown:CurrentResult[]) {
   for (const entry of breakdown) {
     const NON_VOTER_BONUS:number = entry.isNonVoter ? 0 : 1;
     const IS_FASTEST_BONUS:number = entry.isNonVoter ? 1 : 0;
-    const IS_WINNER_BONUS:number = entry.isWinner ? 1 : 0;
+    const IS_WINNER_BONUS:number = entry.isWinner ? entry.acro.split(" ").length : 0;
     const IS_WINNER_VOTER_BONUS:number = entry.isWinnerVoter ? 1 : 0;
     const MORE_POINTS = (entry.votes + IS_FASTEST_BONUS + IS_WINNER_BONUS + IS_WINNER_VOTER_BONUS) * NON_VOTER_BONUS;
     const PLAYER = updatedplayers.find(player => player.id === entry.id);
