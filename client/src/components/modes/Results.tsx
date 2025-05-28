@@ -30,7 +30,7 @@ function Results({ acros, id }: ResultsProps) {
                 <ul className="list-none">
                     { sortedAcro.map((entry:any) => 
                     <li className={`relative border-2 p-4 flex gap-2 mt-4 rounded-md ${entry.id === id ? 'border-green-500' : 'border-blue-500'}`} key={entry.id}>
-                        <Bonuses isNonVoter={entry.isNonVoter} isFastest={entry.isFastest} isWinner={entry.isWinner} isWinnerVoter={entry.isWinnerVoter}/>
+                        <Bonuses length={entry.acro.split(" ").length} isNonVoter={entry.isNonVoter} isFastest={entry.isFastest} isWinner={entry.isWinner} isWinnerVoter={entry.isWinnerVoter}/>
                         <span className="w-5 shrink-0 text-right font-bold text-blue-500 dark:text-blue-400">{entry.votes}</span>
                         <span className="flex-auto">{entry.acro}</span>
                     </li>
