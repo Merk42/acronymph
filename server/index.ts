@@ -1,6 +1,6 @@
 import { Rooms, Player, Socket } from "./types";
 import { acronymForRound, generateAcro } from "./modes/enterAcro";
-import { countValues, roundWinner, updateScore, pointsToAcros } from "./modes/results";
+import { pointsToAcros, roundWinner, updateScore } from "./modes/results";
 import { categoryOptions } from "./modes/category";
 import { finalists } from "./modes/lightning";
 const express = require('express');
@@ -199,14 +199,14 @@ function voteOnAcroym(roomName:string) {
 }
 
 function resultsOfAcronym(roomName:string) {
-  const votesPerId = countValues(rooms[roomName].currentVotes);
-  const winner = roundWinner(rooms[roomName].currentEntries, rooms[roomName].players, votesPerId);
-  const updatedPlayersAndScore = updateScore(rooms[roomName].players, votesPerId);
+  const POINT_BREAKDOWN = pointsToAcros(rooms[roomName].currentEntries, rooms[roomName].currentVotes)
+  const winner = roundWinner(rooms[roomName].players, POINT_BREAKDOWN);
+  const updatedPlayersAndScore = updateScore(rooms[roomName].players, POINT_BREAKDOWN);
   // TODO maybe update players on next phase?
   rooms[roomName].players = updatedPlayersAndScore;
   io.to(roomName).emit("resultsOfAcronym", {
     players: rooms[roomName].players,
-    entries: pointsToAcros(rooms[roomName].currentEntries, votesPerId),
+    entries: POINT_BREAKDOWN,
     timer: TIME_TO_VIEW,
     round: rooms[roomName].currentRound
   });
@@ -297,13 +297,13 @@ function viewLightning(roomName:string) {
   rooms[roomName].currentRound++;
   const LIGHTNING_INDEX = rooms[roomName].lightning.round-1;
   // everyone gets to see results
-  const votesPerId = countValues(rooms[roomName].lightning.votes[LIGHTNING_INDEX]);
-  const updatedPlayersAndScore = updateScore(rooms[roomName].players, votesPerId);
+  const POINT_BREAKDOWN = pointsToAcros(rooms[roomName].lightning.entries[LIGHTNING_INDEX], rooms[roomName].lightning.votes[LIGHTNING_INDEX], true)
+  const updatedPlayersAndScore = updateScore(rooms[roomName].players, POINT_BREAKDOWN);
   // TODO maybe update players on next phase?
   rooms[roomName].players = updatedPlayersAndScore;
   io.to(roomName).emit("resultsOfAcronym", {
     players: rooms[roomName].players,
-    entries: pointsToAcros(rooms[roomName].lightning.entries[LIGHTNING_INDEX], votesPerId),
+    entries: POINT_BREAKDOWN,
     timer: TIME_TO_VIEW,
     round: rooms[roomName].currentRound
   });

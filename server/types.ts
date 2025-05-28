@@ -7,7 +7,14 @@ export interface Rooms {
 export interface CurrentEntry {
   id: string;
   acro: string;
-  votes?: number;
+}
+
+export interface CurrentResult extends CurrentEntry {
+  votes: number;
+  isNonVoter: boolean;
+  isFastest: boolean;
+  isWinner: boolean;
+  isWinnerVoter: boolean;
 }
 
 export interface CurrentVotes {

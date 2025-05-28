@@ -5,4 +5,8 @@ export interface EnteredAcro {
 
 export interface VotedAcro extends EnteredAcro {
   votes: number;
+  isNonVoter: boolean;
+  isFastest: boolean;
+  isWinner: boolean;
+  isWinnerVoter: boolean;
 }
