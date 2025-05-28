@@ -1,9 +1,9 @@
 
 function Instructions() {
     return (
-        <div className="max-w-5xl m-auto mt-4">
+        <div className="max-w-2xl m-auto mt-4">
             <h1 className="text-2xl">How to play</h1>
-            <ul>
+            <ul className="list-decimal">
                 <li className="text-pretty">All players are given the same random letters (e.g. AIF)</li>
                 <li className="text-pretty">Each player submits their entry (e.g. Acronymph Is Fun)</li>
                 <li className="text-pretty">Each player then votes on their favorite </li>
