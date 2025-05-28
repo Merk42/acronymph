@@ -152,11 +152,10 @@ function App() {
   }
 
   function categoryChosen(category:string) {
-    console.log('fe categorychosen')
     socket.emit('category', room, category);
   }
 
-  /*
+ /* 
   function demoMode(mode:MODE) {
     setUserID(PLACEHOLDER_ID);
     setRoundMode(mode);
