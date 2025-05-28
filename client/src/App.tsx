@@ -215,7 +215,12 @@ function App() {
               case 'wait':
                 return <PleaseWait message={waitMessage}/>
               default:
-                return <Login joinRoom={joinRoom} enterError={enterError}/>
+                return (
+                  <>
+                    <Login joinRoom={joinRoom} enterError={enterError}/>
+                    <Instructions/>
+                  </>
+                )
             }
           })()}
            </div>
