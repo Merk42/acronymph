@@ -18,6 +18,7 @@ import { EnteredAcro, VotedAcro } from './types/Entry';
 import { NewAcronymData, VoteOnAcronymData, ResultsOfAcronymData, GameoverData, ChoosingCategoryData, ChooseCategoryData } from './types/SocketEvent';
 import ChoosingCategory from './components/modes/ChoosingCategory';
 import ChooseCategory from './components/modes/ChooseCategory';
+import Instructions from './components/Instructions';
 // import { PLACEHOLDER_ACRONYM, PLACEHOLDER_ENTRIES, PLACEHOLDER_ID, PLACEHOLDER_PLAYERS } from './placeholders';
 
 const socket = io("https://acronymph.onrender.com/");
