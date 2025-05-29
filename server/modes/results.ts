@@ -77,9 +77,10 @@ export function pointsToAcros(acros:CurrentEntry[], currentVotes:CurrentVotes, l
     VOTER_IDS.includes(player.id)
   );
   if (VOTERS.length) {
-    const FASTEST = VOTERS[0];
-    FASTEST.isFastest = true;
-    
+    const FASTEST = VOTERS.find(voter => voter.votes > 0);
+    if (FASTEST) {
+      FASTEST.isFastest = true;
+    }
 
     const VOTE_SORTED = [...VOTERS];
     VOTE_SORTED.sort((a:CurrentResult, b:CurrentResult) => {
