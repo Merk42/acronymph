@@ -15,6 +15,7 @@ export interface CurrentResult extends CurrentEntry {
   isFastest: boolean;
   isWinner: boolean;
   isWinnerVoter: boolean;
+  index: number;
 }
 
 export interface CurrentVotes {
