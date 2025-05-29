@@ -75,24 +75,28 @@ export function pointsToAcros(acros:CurrentEntry[], currentVotes:CurrentVotes, l
   const VOTERS = updatedacros.filter(player => 
     VOTER_IDS.includes(player.id)
   );
-  const FASTEST = VOTERS[0];
-  FASTEST.isFastest = true;
+  if (VOTERS.length) {
+    const FASTEST = VOTERS[0];
+    FASTEST.isFastest = true;
+    
 
-  const VOTE_SORTED = [...VOTERS];
-  VOTE_SORTED.sort((a:CurrentResult, b:CurrentResult) => {
-    if (a.votes < b.votes) {
-      return 1;
+    const VOTE_SORTED = [...VOTERS];
+    VOTE_SORTED.sort((a:CurrentResult, b:CurrentResult) => {
+      if (a.votes < b.votes) {
+        return 1;
+      }
+      if (a.votes > b.votes) {
+        return -1;
+      }
+      return 0;
+    });
+    // TODO what if tie in number of votes?
+    
+    const WINNER_ID = VOTE_SORTED[0].id;
+    const WINNER = VOTERS.find(acro => acro.id === WINNER_ID);
+    if (WINNER) {
+      WINNER.isWinner = true;
     }
-    if (a.votes > b.votes) {
-      return -1;
-    }
-    return 0;
-  });
-  // TODO what if tie in number of votes?
-  const WINNER_ID = VOTE_SORTED[0].id;
-  const WINNER = VOTERS.find(acro => acro.id === WINNER_ID);
-  if (WINNER) {
-    WINNER.isWinner = true;
   }
   return [...VOTERS, ...FLAGGED_NONVOTERS];
 }
