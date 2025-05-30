@@ -6,7 +6,7 @@ export interface Rooms {
 
 export interface CurrentEntry {
   id: string;
-  acro: string;
+  phrase: string;
 }
 
 export interface CurrentResult extends CurrentEntry {

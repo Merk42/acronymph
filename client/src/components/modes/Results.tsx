@@ -3,14 +3,14 @@ import { VotedAcro } from "../../types/Entry";
 import Bonuses from "../Bonuses";
 
 interface ResultsProps {
-    acros: VotedAcro[];
+    results: VotedAcro[];
     id: string;
 }
 
-function Results({ acros, id }: ResultsProps) {
+function Results({ results, id }: ResultsProps) {
     const sortedAcro = useMemo(() => {
-        if (acros) {
-            return acros.sort((a:VotedAcro, b:VotedAcro) => {
+        if (results) {
+            return results.sort((a:VotedAcro, b:VotedAcro) => {
                 if (a.votes < b.votes) {
                     return 1;
                 }
@@ -21,18 +21,18 @@ function Results({ acros, id }: ResultsProps) {
             });
         }
         return []
-    }, [acros])
+    }, [results])
 
     if (sortedAcro.length) {
         return(
             <div className="max-w-xl m-auto">
                 <p className="text-xl">Here are the results</p>
                 <ul className="list-none">
-                    { sortedAcro.map((entry:any) => 
-                    <li className={`relative border-2 p-4 flex gap-2 mt-4 rounded-md ${entry.id === id ? 'border-green-500' : 'border-blue-500'}`} key={entry.id}>
-                        <Bonuses length={entry.acro.split(" ").length} isNonVoter={entry.isNonVoter} isFastest={entry.isFastest} isWinner={entry.isWinner} isWinnerVoter={entry.isWinnerVoter}/>
-                        <span className="w-5 shrink-0 text-right font-bold text-blue-500 dark:text-blue-400">{entry.votes}</span>
-                        <span className="flex-auto">{entry.acro}</span>
+                    { sortedAcro.map((result:VotedAcro) => 
+                    <li className={`relative border-2 p-4 flex gap-2 mt-4 rounded-md ${result.id === id ? 'border-green-500' : 'border-blue-500'}`} key={result.id}>
+                        <Bonuses length={result.phrase.split(" ").length} isNonVoter={result.isNonVoter} isFastest={result.isFastest} isWinner={result.isWinner} isWinnerVoter={result.isWinnerVoter}/>
+                        <span className="w-5 shrink-0 text-right font-bold text-blue-500 dark:text-blue-400">{result.votes}</span>
+                        <span className="flex-auto">{result.phrase}</span>
                     </li>
                     )}
                 </ul>

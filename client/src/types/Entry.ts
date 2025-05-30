@@ -1,6 +1,6 @@
 export interface EnteredAcro {
   id: string;
-  acro: string;
+  phrase: string;
 }
 
 export interface VotedAcro extends EnteredAcro {

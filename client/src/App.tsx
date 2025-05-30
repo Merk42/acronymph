@@ -137,8 +137,8 @@ function App() {
     })
   })
 
-  function acroEntered(e:string) {
-    socket.emit('acroEntered', room, e)
+  function phraseEntered(e:string) {
+    socket.emit('phraseEntered', room, e)
   }
 
   function joinRoom(roomName:string, userName: string) {
@@ -201,11 +201,11 @@ function App() {
           {(() => {
             switch (roundMode) {
               case 'enter':
-                return <EnterAcro acronym={currentacro} onAcroEntered={acroEntered}/>
+                return <EnterAcro acronym={currentacro} onPhraseEntered={phraseEntered}/>
               case 'vote':
-                return <VoteAcro acros={enteredAcronyms} onVoted={votedFor} id={userID}/>
+                return <VoteAcro entries={enteredAcronyms} onVoted={votedFor} id={userID}/>
               case 'results':
-                return <Results acros={votedAcronyms} id={userID}/>
+                return <Results results={votedAcronyms} id={userID}/>
               case 'gameover':
                 return <GameOver winner={winner} tie={isTieGame}/>
               case 'choosingcategory':

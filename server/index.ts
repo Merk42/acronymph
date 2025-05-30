@@ -116,17 +116,17 @@ io.on("connection", (socket:Socket) => {
     })          
   });
 
-  socket.on("acroEntered", (roomName:string, acronym:string) => {
+  socket.on("phraseEntered", (roomName:string, phrase:string) => {
     const LIGHTNING_ROUND = rooms[roomName].lightning.round;
     if (LIGHTNING_ROUND) {
       rooms[roomName].lightning.entries[LIGHTNING_ROUND-1].push({
         id: socket.id,
-        acro: acronym
+        phrase: phrase
       })
     } else {
     rooms[roomName].currentEntries.push({
       id: socket.id,
-      acro: acronym
+      phrase: phrase
     });
     }
   });

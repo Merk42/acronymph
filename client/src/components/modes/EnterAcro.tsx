@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
-function EnterAcro({acronym, onAcroEntered}:{acronym:string[]; onAcroEntered: Function}) {
+function EnterAcro({acronym, onPhraseEntered}:{acronym:string[]; onPhraseEntered: Function}) {
     const [isEntered, setIsEntered] = useState(false);
 
     const [phrase, setPhrase] = useState('');
@@ -27,7 +27,7 @@ function EnterAcro({acronym, onAcroEntered}:{acronym:string[]; onAcroEntered: Fu
         e.preventDefault();
         if (isValid) {
             setIsEntered(true);
-            onAcroEntered(phrase.trim());
+            onPhraseEntered(phrase.trim());
         }
     };
 

@@ -29,7 +29,7 @@ export function updateScore(players:Player[], breakdown:CurrentResult[]) {
   for (const entry of breakdown) {
     const NON_VOTER_BONUS:number = entry.isNonVoter ? 0 : 1;
     const IS_FASTEST_BONUS:number = entry.isFastest ? 1 : 0;
-    const IS_WINNER_BONUS:number = entry.isWinner ? entry.acro.split(" ").length : 0;
+    const IS_WINNER_BONUS:number = entry.isWinner ? entry.phrase.split(" ").length : 0;
     const IS_WINNER_VOTER_BONUS:number = entry.isWinnerVoter ? 1 : 0;
     const MORE_POINTS = (entry.votes + IS_FASTEST_BONUS + IS_WINNER_BONUS + IS_WINNER_VOTER_BONUS) * NON_VOTER_BONUS;
     const PLAYER = updatedplayers.find(player => player.id === entry.id);
@@ -40,12 +40,12 @@ export function updateScore(players:Player[], breakdown:CurrentResult[]) {
   return updatedplayers
 }
 
-export function pointsToAcros(acros:CurrentEntry[], currentVotes:CurrentVotes, lightning:boolean = false):CurrentResult[]  {
+export function pointsToAcros(entries:CurrentEntry[], currentVotes:CurrentVotes, lightning:boolean = false):CurrentResult[]  {
   const VOTE_COUNT = countValues(currentVotes);
-  let updatedacros:CurrentResult[] = acros.map((entry, index) =>({
+  let updatedEntries:CurrentResult[] = entries.map((entry:CurrentEntry, index:number) =>({
     index: index,
     id:entry.id,
-    acro:entry.acro,
+    phrase:entry.phrase,
     votes:0,
     isNonVoter: false,
     isFastest: false,
@@ -55,29 +55,29 @@ export function pointsToAcros(acros:CurrentEntry[], currentVotes:CurrentVotes, l
   for (const key in VOTE_COUNT) {
     if (VOTE_COUNT.hasOwnProperty(key)) { // Check if the key is a direct property
       const value = VOTE_COUNT[key];
-      const idToUpdate = updatedacros.find(acro => acro.id === key);
+      const idToUpdate = updatedEntries.find((entry:CurrentResult) => entry.id === key);
       if (idToUpdate) {
         idToUpdate.votes = value;
       }
     }
   }
   if (lightning) {
-    return updatedacros;
+    return updatedEntries;
   } 
   const VOTER_IDS = Object.keys(currentVotes);
-  const NONVOTERS = updatedacros.filter(player => 
+  const NONVOTERS = updatedEntries.filter((player:CurrentResult) => 
     !VOTER_IDS.includes(player.id)
   );
-  const FLAGGED_NONVOTERS = NONVOTERS.map(player => ({
+  const FLAGGED_NONVOTERS = NONVOTERS.map((player:CurrentResult) => ({
     ...player,
     isNonVoter: true
   }));
 
-  const VOTERS = updatedacros.filter(player => 
+  const VOTERS = updatedEntries.filter((player:CurrentResult) => 
     VOTER_IDS.includes(player.id)
   );
   if (VOTERS.length) {
-    const FASTEST = VOTERS.find(voter => voter.votes > 0);
+    const FASTEST = VOTERS.find((voter:CurrentResult) => voter.votes > 0);
     if (FASTEST) {
       FASTEST.isFastest = true;
     }
@@ -94,7 +94,7 @@ export function pointsToAcros(acros:CurrentEntry[], currentVotes:CurrentVotes, l
     });
     
     const MOST_VOTES = VOTE_SORTED[0].votes;
-    const WINNERS = VOTERS.filter(acro => acro.votes === MOST_VOTES);
+    const WINNERS = VOTERS.filter((entry:CurrentResult) => entry.votes === MOST_VOTES);
     if (WINNERS.length) {
       WINNERS.sort((a:CurrentResult, b:CurrentResult) => {
         if (a.index > b.index) {
