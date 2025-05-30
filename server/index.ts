@@ -15,8 +15,8 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-      origin: "https://acronymph.markecurtis.com",
-      methods: ["GET", "POST"]
+    origin: "https://acronymph.markecurtis.com",
+    methods: ["GET", "POST"]
   }
 });
 /*
@@ -48,10 +48,10 @@ const CATEGORY_POOL = [
   "history"
 ]
 
-const rooms:Rooms = {};
+const rooms: Rooms = {};
 
-io.on("connection", (socket:Socket) => {
-  socket.on("joinRoom", (roomName:string, userName:string) => {
+io.on("connection", (socket: Socket) => {
+  socket.on("joinRoom", (roomName: string, userName: string) => {
     if (!rooms[roomName]) {
       rooms[roomName] = {
         players: [],
@@ -84,14 +84,14 @@ io.on("connection", (socket:Socket) => {
         }
       };
     }
-    if (rooms[roomName].players.filter((player:Player) => player.name === userName).length > 0) {
+    if (rooms[roomName].players.filter((player: Player) => player.name === userName).length > 0) {
       io.to(socket.id).emit("join_error", `A player with the username of ${userName} already exists in ${roomName}`);
     } else if (rooms[roomName].players.length >= 20) {
       io.to(socket.id).emit("join_error", `The ${roomName} room is full`);
     } else {
       socket.join(roomName);
       io.to(roomName).emit("enter_room", socket.id, userName);
-      rooms[roomName].players.push({ 
+      rooms[roomName].players.push({
         id: socket.id,
         name: userName,
         score: 0
@@ -115,39 +115,39 @@ io.on("connection", (socket:Socket) => {
         delete rooms[roomName];
         return;
       }
-    })          
+    })
   });
 
-  socket.on("phraseEntered", (roomName:string, phrase:string) => {
+  socket.on("phraseEntered", (roomName: string, phrase: string) => {
     const LIGHTNING_ROUND = rooms[roomName].lightning.round;
     if (LIGHTNING_ROUND) {
-      rooms[roomName].lightning.entries[LIGHTNING_ROUND-1].push({
+      rooms[roomName].lightning.entries[LIGHTNING_ROUND - 1].push({
         id: socket.id,
         phrase: phrase
       })
     } else {
-    rooms[roomName].current.entries.push({
-      id: socket.id,
-      phrase: phrase
-    });
+      rooms[roomName].current.entries.push({
+        id: socket.id,
+        phrase: phrase
+      });
     }
   });
 
-  socket.on("voted", (roomName:string, acroid:string, userid:string) => {
+  socket.on("voted", (roomName: string, acroid: string, userid: string) => {
     const LIGHTNING_ROUND = rooms[roomName].lightning.round;
     if (LIGHTNING_ROUND) {
-      rooms[roomName].lightning.votes[LIGHTNING_ROUND-1][userid] = acroid;
+      rooms[roomName].lightning.votes[LIGHTNING_ROUND - 1][userid] = acroid;
     } else {
-    rooms[roomName].current.votes[userid] = acroid;
+      rooms[roomName].current.votes[userid] = acroid;
     }
   })
 
-  socket.on("category", (roomName:string, category:string) => {
+  socket.on("category", (roomName: string, category: string) => {
     rooms[roomName].current.category = category;
   })
 })
 
-function choosingCategory(roomName:string, winner:Player) {
+function choosingCategory(roomName: string, winner: Player) {
   rooms[roomName].current.category = CATEGORY_POOL[0];
   io.to(roomName).except(winner.id).emit("choosingCategory", {
     winner: winner.name,
@@ -167,14 +167,14 @@ function choosingCategory(roomName:string, winner:Player) {
   }, TIME_TO_CATEGORY);
 }
 
-function sendNewAcronym(roomName:string) {   
+function sendNewAcronym(roomName: string) {
   rooms[roomName].current.round++;
   const ACRO = acronymForRound(rooms[roomName].current.round);
   rooms[roomName].current.acronym = ACRO;
 
   rooms[roomName].current.entries = [];
   rooms[roomName].current.votes = {};
-  const TIME_TO_ENTER = TIMES_TO_ENTER[rooms[roomName].current.round-1];
+  const TIME_TO_ENTER = TIMES_TO_ENTER[rooms[roomName].current.round - 1];
   io.to(roomName).emit("newAcronym", {
     acronym: ACRO,
     timer: TIME_TO_ENTER,
@@ -185,10 +185,10 @@ function sendNewAcronym(roomName:string) {
   rooms[roomName].modeTimeout = setTimeout(() => {
     voteOnAcroym(roomName);
   }, TIME_TO_ENTER);
-  
+
 }
 
-function voteOnAcroym(roomName:string) {
+function voteOnAcroym(roomName: string) {
   io.to(roomName).emit("voteOnAcronym", {
     entries: rooms[roomName].current.entries,
     timer: TIME_TO_VOTE,
@@ -200,7 +200,7 @@ function voteOnAcroym(roomName:string) {
   }, TIME_TO_VOTE);
 }
 
-function resultsOfAcronym(roomName:string) {
+function resultsOfAcronym(roomName: string) {
   const POINT_BREAKDOWN = pointsToAcros(rooms[roomName].current.entries, rooms[roomName].current.votes)
   const winner = roundWinner(rooms[roomName].players, POINT_BREAKDOWN);
   const updatedPlayersAndScore = updateScore(rooms[roomName].players, POINT_BREAKDOWN);
@@ -218,8 +218,8 @@ function resultsOfAcronym(roomName:string) {
     // game over? lightning?
     if (rooms[roomName].current.round >= MAX_ROUNDS) {
       if (rooms[roomName].players.length < 3) {
-      gameOver(roomName)
-      return;
+        gameOver(roomName)
+        return;
       } else {
         lightning(roomName);
         return;
@@ -265,20 +265,20 @@ function finalistLightning(roomName: string, finalists: Player[]) {
       rooms[roomName].lightning.round = 0;
       voteLightning(roomName, finalists);
       io.to(finalists[0].id).to(finalists[1].id).emit("wait", {
-        timer:TIME_TO_VOTE * LIGHTNING_ROUNDS,
+        timer: TIME_TO_VOTE * LIGHTNING_ROUNDS,
         message: "Please wait while voting is occuring",
         round: rooms[roomName].current.round
       });
     }
-    
+
   }, TIME_TO_ENTER);
 }
 
-function voteLightning(roomName: string , finalists: Player[]) {
+function voteLightning(roomName: string, finalists: Player[]) {
   rooms[roomName].lightning.round++;
   rooms[roomName].current.round++;
   io.to(roomName).except(finalists[0].id).except(finalists[1].id).emit("voteOnAcronym", {
-    entries: rooms[roomName].lightning.entries[rooms[roomName].lightning.round-1],
+    entries: rooms[roomName].lightning.entries[rooms[roomName].lightning.round - 1],
     timer: TIME_TO_VOTE,
     round: rooms[roomName].current.round
   });
@@ -294,10 +294,10 @@ function voteLightning(roomName: string , finalists: Player[]) {
   }, TIME_TO_VOTE);
 }
 
-function viewLightning(roomName:string) {
+function viewLightning(roomName: string) {
   rooms[roomName].lightning.round++;
   rooms[roomName].current.round++;
-  const LIGHTNING_INDEX = rooms[roomName].lightning.round-1;
+  const LIGHTNING_INDEX = rooms[roomName].lightning.round - 1;
   // everyone gets to see results
   const POINT_BREAKDOWN = pointsToAcros(rooms[roomName].lightning.entries[LIGHTNING_INDEX], rooms[roomName].lightning.votes[LIGHTNING_INDEX], true)
   const updatedPlayersAndScore = updateScore(rooms[roomName].players, POINT_BREAKDOWN);
@@ -321,7 +321,7 @@ function viewLightning(roomName:string) {
   }, TIME_TO_VIEW);
 }
 
-function gameOver(roomName:string) {
+function gameOver(roomName: string) {
   const SORTED = rooms[roomName].players.sort((a, b) => {
     if (a.score < b.score) {
       return 1;
@@ -349,19 +349,19 @@ function gameOver(roomName:string) {
   }, TIME_TO_CELEBRATE);
 }
 
-function startNewGame(roomName:string) {
-  const RESET_PLAYERS = rooms[roomName].players.map(player => { 
-    return { ...player, score:0 };
+function startNewGame(roomName: string) {
+  const RESET_PLAYERS = rooms[roomName].players.map(player => {
+    return { ...player, score: 0 };
   });
   rooms[roomName].players = RESET_PLAYERS;
   io.to(roomName).emit("players_updated", rooms[roomName].players);
   rooms[roomName].current.round = 0;
-if (rooms[roomName].hasCategories) {
+  if (rooms[roomName].hasCategories) {
     rooms[roomName].current.category = CATEGORY_POOL[0];
   }
   sendNewAcronym(roomName);
 }
 
 server.listen(3001, () => {
-    console.log('server running...')
+  console.log('server running...')
 })
