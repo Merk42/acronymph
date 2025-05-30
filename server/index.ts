@@ -356,6 +356,7 @@ function startNewGame(roomName: string) {
   rooms[roomName].players = RESET_PLAYERS;
   io.to(roomName).emit("players_updated", rooms[roomName].players);
   rooms[roomName].current.round = 0;
+  rooms[roomName].lightning.round = 0;
   if (rooms[roomName].hasCategories) {
     rooms[roomName].current.category = CATEGORY_POOL[0];
   }
