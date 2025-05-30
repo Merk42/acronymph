@@ -121,7 +121,7 @@ export const PLACEHOLDER_ACRONYM:string[] = ["k", "w", "y", "j", "i", "b", "o"];
 
 export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
     {
-        acro:"Kindred Wisdom Yields Joyful Insights Brightening Outlooks",
+        phrase:"Kindred Wisdom Yields Joyful Insights Brightening Outlooks",
         id: "smp8viAMgBxsC1jSAAAB",
         votes: 0,
         isNonVoter: false,
@@ -130,7 +130,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: false
     },
     {
-        acro:"Keen Worldly Yearnings Justify Intense Beliefs Often",
+        phrase:"Keen Worldly Yearnings Justify Intense Beliefs Often",
         id: "Ebn-k1rrJ5Yg5-TFAAAB",
         votes: 3,
         isNonVoter: false,
@@ -139,7 +139,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: true
     },
     {
-        acro:"Knowledgeable Ways Yield Jenuine Ideas Building Opportunities",
+        phrase:"Knowledgeable Ways Yield Jenuine Ideas Building Opportunities",
         id: "3P0cKQSwvyqWvtpkAAAD",
         votes: 3,
         isNonVoter: false,
@@ -148,7 +148,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: true
     },
     {
-        acro:"Key Words Yield Jubilant Interpretations Beyond Ordinary",
+        phrase:"Key Words Yield Jubilant Interpretations Beyond Ordinary",
         id: "sFK1N_TjH9gw9jTbAAAF",
         votes: 4,
         isNonVoter: false,
@@ -157,7 +157,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: false
     },
     {
-        acro:"Kreative Workflows Yield Jazzy Innovations Boosting Output",
+        phrase:"Kreative Workflows Yield Jazzy Innovations Boosting Output",
         id: "rmH8vePmtimaBs6lAAAH",
         votes: 0,
         isNonVoter: false,
@@ -166,7 +166,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: true
     },
     {
-        acro:"Kindness Warms Your Journey Inwardly, Bringing Order",
+        phrase:"Kindness Warms Your Journey Inwardly, Bringing Order",
         id: "IsTT2zX_V5v5MOV8AAAJ",
         votes: 0,
         isNonVoter: false,
@@ -175,7 +175,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: true
     },
     {
-        acro:"Keenly Watching Yonder Jays Interact, Birdsong Outbursts",
+        phrase:"Keenly Watching Yonder Jays Interact, Birdsong Outbursts",
         id: "ImdHDOpK1P9QaIlbAAAL",
         votes: 7,
         isNonVoter: false,
@@ -184,7 +184,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: false
     },
     {
-        acro:"Knowing When You Jump Is Better Often",
+        phrase:"Knowing When You Jump Is Better Often",
         id: "3mQ9CLuUm-UADzHjAAAN",
         votes: 0,
         isNonVoter: false,
@@ -193,7 +193,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: false
     },
     {
-        acro:"Kicking Waves Yields Joyful Impacts, Bouncing Outward",
+        phrase:"Kicking Waves Yields Joyful Impacts, Bouncing Outward",
         id: "MpqES0JsbQ0obTKZAAAP",
         votes: 8,
         isNonVoter: false,
@@ -202,7 +202,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: true
     },
     {
-        acro:"Kindred Wishes Yearn Joyful Interactions, Bonding Others",
+        phrase:"Kindred Wishes Yearn Joyful Interactions, Bonding Others",
         id: "WqUx6jUnyg0jle7ZAAAR",
         votes: 9,
         isNonVoter: false,
@@ -211,7 +211,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: true
     },
     {
-        acro:"Keen Wits Yield Jesting Ideas, Bringing Out Laughter",
+        phrase:"Keen Wits Yield Jesting Ideas, Bringing Out Laughter",
         id: "g74vPLmDuGqALsS9AAAT",
         votes: 12,
         isNonVoter: false,
@@ -220,7 +220,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: false
     },
     {
-        acro:"Knowledge Widens Your Judgment, Improving Better Options",
+        phrase:"Knowledge Widens Your Judgment, Improving Better Options",
         id: "NZ-JNsbPDmOzouAMAAAV",
         votes: 5,
         isNonVoter: false,
@@ -229,7 +229,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: false
     },
     {
-        acro:"Key Worldviews Yield Just Inferences, Broadening Outreach",
+        phrase:"Key Worldviews Yield Just Inferences, Broadening Outreach",
         id: "MjVgVqszd82zjiD2AAAX",
         votes: 0,
         isNonVoter: false,
@@ -238,7 +238,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: true
     },
     {
-        acro:"Kreative Writing Yields Joyful Imagery, Building Outlines",
+        phrase:"Kreative Writing Yields Joyful Imagery, Building Outlines",
         id: "O9rRm8NUYymxlWaIAAAZ",
         votes: 1,
         isNonVoter: false,
@@ -247,7 +247,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: false
     },
     {
-        acro:"Kind Words Yield Jentle Impressions, Balancing Outcomes",
+        phrase:"Kind Words Yield Jentle Impressions, Balancing Outcomes",
         id: "1w88ewANG6D3jK4yAAAb",
         votes: 5,
         isNonVoter: false,
@@ -256,7 +256,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: true
     },
     {
-        acro:"Keenly Wondering Yonder Junction Involves Busy Operations",
+        phrase:"Keenly Wondering Yonder Junction Involves Busy Operations",
         id: "4tF0pATq9lj0PCpLAAAd",
         votes: 0,
         isNonVoter: false,
@@ -265,7 +265,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: true
     },
     {
-        acro:"Knowing Who You Join Is Beneficial Often",
+        phrase:"Knowing Who You Join Is Beneficial Often",
         id: "noGR0hqjOjWTk1LGAAAf",
         votes: 4,
         isNonVoter: false,
@@ -274,7 +274,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: true
     },
     {
-        acro:"Kicking Water Yields Joyful Invigoration, Brightening Oneself",
+        phrase:"Kicking Water Yields Joyful Invigoration, Brightening Oneself",
         id: "gRQcpnKQv368rTHQAAAh",
         votes: 4,
         isNonVoter: false,
@@ -283,7 +283,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: true
     },
     {
-        acro:"Kindred Waves Yield Jubilant Iridescence, Beautifully Outlined",
+        phrase:"Kindred Waves Yield Jubilant Iridescence, Beautifully Outlined",
         id: "vXwMwGxQRSxY7p94AAAj",
         votes: 2,
         isNonVoter: false,
@@ -292,7 +292,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: true
     },
     {
-        acro:"Keen Work Yields Justifiable Income, Building Ownership",
+        phrase:"Keen Work Yields Justifiable Income, Building Ownership",
         id: "0UbwpOnOmzBn5TROAAAl",
         votes: 7,
         isNonVoter: false,
@@ -301,7 +301,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: false
     },
     {
-        acro:"Knowledgeable Workers Yearn Job Improvement, Bettering Organizations",
+        phrase:"Knowledgeable Workers Yearn Job Improvement, Bettering Organizations",
         id: "VvDFNL6kTlWii42lAAAn",
         votes: 10,
         isNonVoter: true,
@@ -310,7 +310,7 @@ export const PLACEHOLDER_ENTRIES:VotedAcro[] = [
         isWinnerVoter: false
     },
     {
-        acro:"Key Work Yields Joyful Initiatives, Building Outstanding Results",
+        phrase:"Key Work Yields Joyful Initiatives, Building Outstanding Results",
         id: "uTp1W_q2fU9x6jnHAAAp",
         votes: 9,
         isNonVoter: true,
