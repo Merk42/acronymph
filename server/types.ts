@@ -29,12 +29,14 @@ export interface ValueCounts {
 export interface Room {
   players: Player[],
   modeTimeout: any,
-  currentAcronym: Acronym,
-  currentRound: number,
-  currentEntries: CurrentEntry[],
-  currentVotes: CurrentVotes,
-  currentCategory: string;
   hasCategories: boolean;
+  current: {
+    acronym: Acronym,
+    round: number,
+    entries: CurrentEntry[],
+    votes: CurrentVotes,
+    category: string;
+  },
   lightning: {
     acronyms: Acronym[],
     round: number,

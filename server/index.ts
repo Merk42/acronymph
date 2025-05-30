@@ -56,11 +56,13 @@ io.on("connection", (socket:Socket) => {
       rooms[roomName] = {
         players: [],
         modeTimeout: null,
-        currentAcronym: [],
-        currentRound: 0,
-        currentEntries: [],
-        currentVotes: {},
-        currentCategory: CATEGORY_POOL[0],
+        current: {
+          acronym: [],
+          round: 0,
+          entries: [],
+          votes: {},
+          category: CATEGORY_POOL[0]
+        },
         hasCategories: roomName === 'categories' ? true : false,
         lightning: {
           acronyms: [
@@ -124,7 +126,7 @@ io.on("connection", (socket:Socket) => {
         phrase: phrase
       })
     } else {
-    rooms[roomName].currentEntries.push({
+    rooms[roomName].current.entries.push({
       id: socket.id,
       phrase: phrase
     });
@@ -136,26 +138,26 @@ io.on("connection", (socket:Socket) => {
     if (LIGHTNING_ROUND) {
       rooms[roomName].lightning.votes[LIGHTNING_ROUND-1][userid] = acroid;
     } else {
-    rooms[roomName].currentVotes[userid] = acroid;
+    rooms[roomName].current.votes[userid] = acroid;
     }
   })
 
   socket.on("category", (roomName:string, category:string) => {
-    rooms[roomName].currentCategory = category;
+    rooms[roomName].current.category = category;
   })
 })
 
 function choosingCategory(roomName:string, winner:Player) {
-  rooms[roomName].currentCategory = CATEGORY_POOL[0];
+  rooms[roomName].current.category = CATEGORY_POOL[0];
   io.to(roomName).except(winner.id).emit("choosingCategory", {
     winner: winner.name,
     timer: TIME_TO_CATEGORY,
-    round: rooms[roomName].currentRound
+    round: rooms[roomName].current.round
   });
   io.to(winner.id).emit("chooseCategory", {
     categories: categoryOptions(CATEGORY_POOL, 4),
     timer: TIME_TO_CATEGORY,
-    round: rooms[roomName].currentRound
+    round: rooms[roomName].current.round
   });
 
   clearTimeout(rooms[roomName].modeTimeout);
@@ -166,18 +168,18 @@ function choosingCategory(roomName:string, winner:Player) {
 }
 
 function sendNewAcronym(roomName:string) {   
-  rooms[roomName].currentRound++;
-  const ACRO = acronymForRound(rooms[roomName].currentRound);
-  rooms[roomName].currentAcronym = ACRO;
+  rooms[roomName].current.round++;
+  const ACRO = acronymForRound(rooms[roomName].current.round);
+  rooms[roomName].current.acronym = ACRO;
 
-  rooms[roomName].currentEntries = [];
-  rooms[roomName].currentVotes = {};
-  const TIME_TO_ENTER = TIMES_TO_ENTER[rooms[roomName].currentRound-1];
+  rooms[roomName].current.entries = [];
+  rooms[roomName].current.votes = {};
+  const TIME_TO_ENTER = TIMES_TO_ENTER[rooms[roomName].current.round-1];
   io.to(roomName).emit("newAcronym", {
     acronym: ACRO,
     timer: TIME_TO_ENTER,
-    round: rooms[roomName].currentRound,
-    ...(rooms[roomName].hasCategories && { category: rooms[roomName].currentCategory })
+    round: rooms[roomName].current.round,
+    ...(rooms[roomName].hasCategories && { category: rooms[roomName].current.category })
   });
   clearTimeout(rooms[roomName].modeTimeout);
   rooms[roomName].modeTimeout = setTimeout(() => {
@@ -188,9 +190,9 @@ function sendNewAcronym(roomName:string) {
 
 function voteOnAcroym(roomName:string) {
   io.to(roomName).emit("voteOnAcronym", {
-    entries: rooms[roomName].currentEntries,
+    entries: rooms[roomName].current.entries,
     timer: TIME_TO_VOTE,
-    round: rooms[roomName].currentRound
+    round: rooms[roomName].current.round
   });
   clearTimeout(rooms[roomName].modeTimeout);
   rooms[roomName].modeTimeout = setTimeout(() => {
@@ -199,7 +201,7 @@ function voteOnAcroym(roomName:string) {
 }
 
 function resultsOfAcronym(roomName:string) {
-  const POINT_BREAKDOWN = pointsToAcros(rooms[roomName].currentEntries, rooms[roomName].currentVotes)
+  const POINT_BREAKDOWN = pointsToAcros(rooms[roomName].current.entries, rooms[roomName].current.votes)
   const winner = roundWinner(rooms[roomName].players, POINT_BREAKDOWN);
   const updatedPlayersAndScore = updateScore(rooms[roomName].players, POINT_BREAKDOWN);
   // TODO maybe update players on next phase?
@@ -208,13 +210,13 @@ function resultsOfAcronym(roomName:string) {
     players: rooms[roomName].players,
     entries: POINT_BREAKDOWN,
     timer: TIME_TO_VIEW,
-    round: rooms[roomName].currentRound
+    round: rooms[roomName].current.round
   });
   clearTimeout(rooms[roomName].modeTimeout);
   // TODO find winner of round, and pass their ID and Name to new 'category' mode
   rooms[roomName].modeTimeout = setTimeout(() => {
     // game over? lightning?
-    if (rooms[roomName].currentRound >= MAX_ROUNDS) {
+    if (rooms[roomName].current.round >= MAX_ROUNDS) {
       if (rooms[roomName].players.length < 3) {
       gameOver(roomName)
       return;
@@ -235,11 +237,11 @@ function lightning(roomName: string) {
   const FINALISTS = finalists(rooms[roomName].players);
   const ACROS = [generateAcro(3), generateAcro(4), generateAcro(5)];
   rooms[roomName].lightning.acronyms = ACROS;
-  rooms[roomName].currentRound = 100;
+  rooms[roomName].current.round = 100;
   io.to(roomName).except(FINALISTS[0].id).except(FINALISTS[1].id).emit("wait", {
     timer: LIGHTNING_ROUNDS * TIME_FOR_LIGHTNING,
     message: `Please wait while ${FINALISTS[0].name} and ${FINALISTS[1].name} enter their final entries`,
-    round: rooms[roomName].currentRound
+    round: rooms[roomName].current.round
   });
   finalistLightning(roomName, FINALISTS)
 }
@@ -248,11 +250,11 @@ function finalistLightning(roomName: string, finalists: Player[]) {
   const TIME_TO_ENTER = TIME_FOR_LIGHTNING;
   const CURRENT_ACRO = rooms[roomName].lightning.acronyms[rooms[roomName].lightning.round];
   rooms[roomName].lightning.round++;
-  rooms[roomName].currentRound++;
+  rooms[roomName].current.round++;
   io.to(finalists[0].id).to(finalists[1].id).emit("newAcronym", {
     acronym: CURRENT_ACRO,
     timer: TIME_TO_ENTER,
-    round: rooms[roomName].currentRound,
+    round: rooms[roomName].current.round,
   });
   clearTimeout(rooms[roomName].modeTimeout);
   rooms[roomName].modeTimeout = setTimeout(() => {
@@ -265,7 +267,7 @@ function finalistLightning(roomName: string, finalists: Player[]) {
       io.to(finalists[0].id).to(finalists[1].id).emit("wait", {
         timer:TIME_TO_VOTE * LIGHTNING_ROUNDS,
         message: "Please wait while voting is occuring",
-        round: rooms[roomName].currentRound
+        round: rooms[roomName].current.round
       });
     }
     
@@ -274,11 +276,11 @@ function finalistLightning(roomName: string, finalists: Player[]) {
 
 function voteLightning(roomName: string , finalists: Player[]) {
   rooms[roomName].lightning.round++;
-  rooms[roomName].currentRound++;
+  rooms[roomName].current.round++;
   io.to(roomName).except(finalists[0].id).except(finalists[1].id).emit("voteOnAcronym", {
     entries: rooms[roomName].lightning.entries[rooms[roomName].lightning.round-1],
     timer: TIME_TO_VOTE,
-    round: rooms[roomName].currentRound
+    round: rooms[roomName].current.round
   });
   clearTimeout(rooms[roomName].modeTimeout);
   rooms[roomName].modeTimeout = setTimeout(() => {
@@ -294,7 +296,7 @@ function voteLightning(roomName: string , finalists: Player[]) {
 
 function viewLightning(roomName:string) {
   rooms[roomName].lightning.round++;
-  rooms[roomName].currentRound++;
+  rooms[roomName].current.round++;
   const LIGHTNING_INDEX = rooms[roomName].lightning.round-1;
   // everyone gets to see results
   const POINT_BREAKDOWN = pointsToAcros(rooms[roomName].lightning.entries[LIGHTNING_INDEX], rooms[roomName].lightning.votes[LIGHTNING_INDEX], true)
@@ -305,7 +307,7 @@ function viewLightning(roomName:string) {
     players: rooms[roomName].players,
     entries: POINT_BREAKDOWN,
     timer: TIME_TO_VIEW,
-    round: rooms[roomName].currentRound
+    round: rooms[roomName].current.round
   });
   clearTimeout(rooms[roomName].modeTimeout);
   // TODO find winner of round, and pass their ID and Name to new 'category' mode
@@ -353,9 +355,9 @@ function startNewGame(roomName:string) {
   });
   rooms[roomName].players = RESET_PLAYERS;
   io.to(roomName).emit("players_updated", rooms[roomName].players);
-  rooms[roomName].currentRound = 0;
+  rooms[roomName].current.round = 0;
 if (rooms[roomName].hasCategories) {
-    rooms[roomName].currentCategory = CATEGORY_POOL[0];
+    rooms[roomName].current.category = CATEGORY_POOL[0];
   }
   sendNewAcronym(roomName);
 }
