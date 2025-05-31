@@ -155,7 +155,12 @@ function App() {
     socket.emit('category', room, category);
   }
 
- /* 
+  function forceNewGame() {
+    setRoundNumber(roundNumber-1);
+    socket.emit('forceNewGame', room)
+  }
+
+ /*
   function demoMode(mode:MODE) {
     setUserID(PLACEHOLDER_ID);
     setRoundMode(mode);
@@ -184,11 +189,11 @@ function App() {
   useEffect(() => {
     demoMode('wait')
   }, [])
-  */
+ */
   return (
       <div className={`sm:min-h-dvh grid sm:gap-8 ${roundMode ? 'sm:grid-cols-[25ch_1fr]' : ''} `}>
         { roundMode &&
-        <Players players={players} id={userID} />
+        <Players players={players} id={userID} onForceNewGame={forceNewGame}/>
         }
         <main className='p-4'>
           { roundNumber > 0 &&
