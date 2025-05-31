@@ -103,6 +103,7 @@ io.on("connection", (socket: Socket) => {
       if (rooms[roomName].players.length === 2) {
         // A CHALLENGER APPEARS
         clearTimeout(rooms[roomName].modeTimeout);
+        io.to(roomName).emit("resetTimer");
         startNewGame(roomName);
       }
     }
@@ -144,6 +145,12 @@ io.on("connection", (socket: Socket) => {
 
   socket.on("category", (roomName: string, category: string) => {
     rooms[roomName].current.category = category;
+  })
+
+  socket.on("forceNewGame", (roomName:string) => {
+    clearTimeout(rooms[roomName].modeTimeout);
+    io.to(roomName).emit("resetTimer");
+    startNewGame(roomName);
   })
 })
 

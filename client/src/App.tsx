@@ -137,6 +137,12 @@ function App() {
     })
   })
 
+  useEffect(() => {
+    socket.on("resetTimer", () => {
+      setRoundNumber(roundNumber-1)
+    })
+  })
+
   function phraseEntered(e:string) {
     socket.emit('phraseEntered', room, e)
   }
