@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import './App.css';
 
+import ChoosingCategory from './components/modes/ChoosingCategory';
+import ChooseCategory from './components/modes/ChooseCategory';
 import EnterAcro from './components/modes/EnterAcro';
 import GameOver from './components/modes/GameOver';
 import Login from './components/modes/Login';
@@ -10,16 +12,16 @@ import Results from './components/modes/Results';
 import VoteAcro from './components/modes/VoteAcro';
 
 import Countdown from './components/Countdown';
+import DemoMode from './components/DemoMode';
+import Instructions from './components/Instructions';
 import Players from './components/Players';
 import RoundDisplay from './components/RoundDisplay';
 
 import { Player } from './types/Player';
 import { EnteredAcro, VotedAcro } from './types/Entry';
 import { NewAcronymData, VoteOnAcronymData, ResultsOfAcronymData, GameoverData, ChoosingCategoryData, ChooseCategoryData } from './types/SocketEvent';
-import ChoosingCategory from './components/modes/ChoosingCategory';
-import ChooseCategory from './components/modes/ChooseCategory';
-import Instructions from './components/Instructions';
-// import { PLACEHOLDER_ACRONYM, PLACEHOLDER_ENTRIES, PLACEHOLDER_ID, PLACEHOLDER_PLAYERS } from './placeholders';
+
+import { PLACEHOLDER_ACRONYM, PLACEHOLDER_ENTRIES, PLACEHOLDER_ID, PLACEHOLDER_PLAYERS } from './placeholders';
 
 const socket = io("https://acronymph.onrender.com/");
 // const socket = io("localhost:3001");
@@ -166,7 +168,6 @@ function App() {
     socket.emit('forceNewGame', room)
   }
 
- /*
   function demoMode(mode:MODE) {
     setUserID(PLACEHOLDER_ID);
     setRoundMode(mode);
@@ -191,17 +192,14 @@ function App() {
         
     }
   }
-
-  useEffect(() => {
-    demoMode('wait')
-  }, [])
- */
+ 
   return (
       <div className={`sm:min-h-dvh grid sm:gap-8 ${roundMode ? 'sm:grid-cols-[25ch_1fr]' : ''} `}>
         { roundMode &&
         <Players players={players} id={userID} onForceNewGame={forceNewGame}/>
         }
         <main className='p-4'>
+          <DemoMode onDemoMode={demoMode} mode=""/>
           { roundNumber > 0 &&
             <div className='flex items-center mb-8'>
               <RoundDisplay round={roundNumber} category={currentCategory}/>
