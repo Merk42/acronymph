@@ -1,6 +1,6 @@
 import { Rooms, Player, Socket } from "./types";
 import { acronymForRound, generateAcro } from "./modes/enterAcro";
-import { pointsToAcros, roundWinner, updateScore } from "./modes/results";
+import { pointsToAcros, roundWinner, strikeIdle, updateScore } from "./modes/results";
 import { categoryOptions } from "./modes/category";
 import { finalists } from "./modes/lightning";
 const express = require('express');
@@ -94,7 +94,8 @@ io.on("connection", (socket: Socket) => {
       rooms[roomName].players.push({
         id: socket.id,
         name: userName,
-        score: 0
+        score: 0,
+        strikes: 0
       });
       io.to(roomName).emit("players_updated", rooms[roomName].players);
       if (rooms[roomName].players.length === 1) {
@@ -212,10 +213,18 @@ function resultsOfAcronym(roomName: string) {
   const POINT_BREAKDOWN = pointsToAcros(rooms[roomName].current.entries, rooms[roomName].current.votes)
   const winner = roundWinner(rooms[roomName].players, POINT_BREAKDOWN);
   const updatedPlayersAndScore = updateScore(rooms[roomName].players, POINT_BREAKDOWN);
-  // TODO maybe update players on next phase?
-  rooms[roomName].players = updatedPlayersAndScore;
+  const playersStrikeCheck = strikeIdle(rooms[roomName].current.entries, rooms[roomName].current.votes, updatedPlayersAndScore);
+  
+  const IDLE_PLAYERS = playersStrikeCheck.filter(player => player.strikes >= 3);
+  for (const IDLE of IDLE_PLAYERS) {
+    io.to(IDLE.id).emit("kicked")
+    io.in(IDLE.id).disconnectSockets();
+  }
+  const PLAYERS_CONNECTED = playersStrikeCheck.filter(player => player.strikes < 3);
+  io.to(roomName).emit("players_updated", PLAYERS_CONNECTED);
+    
   io.to(roomName).emit("resultsOfAcronym", {
-    players: rooms[roomName].players,
+    players: PLAYERS_CONNECTED,
     entries: POINT_BREAKDOWN,
     timer: TIME_TO_VIEW,
     round: rooms[roomName].current.round

@@ -49,6 +49,7 @@ export interface Player {
   name: string;
   id: string;
   score: number;
+  strikes: number;
 }
 
 export interface Socket {

@@ -30,7 +30,7 @@ type MODE = '' | 'wait' | 'enter' | 'vote' | 'results' | 'choosingcategory' | 'c
 
 function App() {
 
-  const [room, setRoom] = useState<string>("");;
+  const [room, setRoom] = useState<string>("");
   const [userID, setUserID] = useState<string>("");
   const [userName, setUserName] = useState<string>("");
 
@@ -142,6 +142,16 @@ function App() {
   useEffect(() => {
     socket.on("resetTimer", () => {
       setRoundNumber(roundNumber-1)
+    })
+  })
+
+  useEffect(() => {
+    socket.on("kicked", () => {
+      setRoom("");
+      setUserID("");
+      setUserName("");
+      setRoundNumber(0);
+      setRoundMode('');
     })
   })
 

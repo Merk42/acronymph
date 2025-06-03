@@ -21,7 +21,7 @@ export function roundWinner(players:Player[], breakdown:CurrentResult[]):Player 
       return WINNER
     }
   }
-  return {id:'x',name:'x', score:-1}
+  return {id:'x',name:'x', score:-1, strikes: 0}
 }
 
 export function updateScore(players:Player[], breakdown:CurrentResult[]) {
@@ -109,4 +109,17 @@ export function pointsToAcros(entries:CurrentEntry[], currentVotes:CurrentVotes,
     }
   }
   return [...VOTERS, ...FLAGGED_NONVOTERS];
+}
+
+export function strikeIdle(entries:CurrentEntry[], currentVotes:CurrentVotes, players:Player[]) {
+  const IDsThatEntered = entries.map(entry => entry.id);
+  const participants = new Set([...Object.keys(currentVotes), ...IDsThatEntered])
+  for (const player of players) {
+    if (participants.has(player.id)) {
+      player.strikes = 0;
+    } else {
+      player.strikes++;
+    }
+  }
+  return players;
 }
