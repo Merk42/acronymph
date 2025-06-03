@@ -31,6 +31,11 @@ function EnterAcro({acronym, onPhraseEntered}:{acronym:string[]; onPhraseEntered
         }
     };
 
+    const stripDisallowed = (entered:string) => {
+        const allowed = entered.replace(/[^A-Za-z _.,?!"':-]/gi, '');
+        setPhrase(allowed);
+    }
+
     useEffect(() => {
         setPhrase('');
         setIsEntered(false);
@@ -47,7 +52,7 @@ function EnterAcro({acronym, onPhraseEntered}:{acronym:string[]; onPhraseEntered
                         className="rounded-tl-lg rounded-bl-lg sm:text-2xl outline-1 -outline-offset-1 outline-gray-300 block min-w-0 grow py-1.5 px-3 text-gray-900 dark:text-white placeholder:text-gray-400"
                         type="text"
                         value={phrase}
-                        onChange={e => setPhrase(e.target.value)}
+                        onChange={e => stripDisallowed(e.target.value)}
                         />
                     <button
                         className="px-4 py-8 bg-blue-500 text-white rounded-tr-lg rounded-br-lg cursor-pointer disabled:bg-gray-500 disabled:cursor-not-allowed"

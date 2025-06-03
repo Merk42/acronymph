@@ -120,16 +120,17 @@ io.on("connection", (socket: Socket) => {
   });
 
   socket.on("phraseEntered", (roomName: string, phrase: string) => {
+    const ALLOWED_PHRASE = phrase.replace(/[^A-Za-z _.,?!"':-]/gi, '');
     const LIGHTNING_ROUND = rooms[roomName].lightning.round;
     if (LIGHTNING_ROUND) {
       rooms[roomName].lightning.entries[LIGHTNING_ROUND - 1].push({
         id: socket.id,
-        phrase: phrase
+        phrase: ALLOWED_PHRASE
       })
     } else {
       rooms[roomName].current.entries.push({
         id: socket.id,
-        phrase: phrase
+        phrase: ALLOWED_PHRASE
       });
     }
   });
